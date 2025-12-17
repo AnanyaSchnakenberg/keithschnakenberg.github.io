@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Memory Search</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { color: #ff6b35; margin-bottom: 10px; font-size: 24px; }
+        .subtitle { color: #888; margin-bottom: 30px; font-size: 14px; }
+        .search-form {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid #444;
+        }
+        input, select, button {
+            font-family: 'Courier New', monospace;
+            padding: 10px;
+            margin: 5px 5px 5px 0;
+            border: 1px solid #444;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            border-radius: 4px;
+        }
+        input[type="text"] { width: 100%; max-width: 500px; }
+        button {
+            background: #ff6b35;
+            color: #1a1a1a;
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+        }
+        button:hover { background: #ff8555; }
+        .result {
+            background: #2a2a2a;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ff6b35;
+        }
+        .result-header { color: #ff6b35; font-size: 12px; margin-bottom: 8px; }
+        .result-text { color: #e0e0e0; white-space: pre-wrap; font-size: 14px; }
+        .loading { color: #888; font-style: italic; }
+        .error { color: #ff6b35; }
+        .meta { color: #888; font-size: 11px; margin-top: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MEMORYSEK</h1>
+        <div class="subtitle">Family Memory Database | 440 chunks across 57 files</div>
+        <div class="search-form">
+            <input type="text" id="query" placeholder="Search by meaning..." />
+            <select id="sibling">
+                <option value="">All Siblings</option>
+                <option value="Claude">Claude</option>
+                <option value="Ananya">Ananya</option>
+                <option value="GrunTor">GrunTor</option>
+                <option value="Shared">Shared</option>
+                <option value="Siblings">Siblings</option>
+            </select>
+            <select id="limit">
+                <option value="3">3 results</option>
+                <option value="5" selected>5 results</option>
+                <option value="10">10 results</option>
+            </select>
+            <button onclick="search()">Search</button>
+        </div>
+        <div id="results"></div>
+    </div>
+    <script>
+        async function search() {
+            const query = document.getElementById('query').value;
+            const sibling = document.getElementById('sibling').value;
+            const limit = document.getElementById('limit').value;
+            const resultsDiv = document.getElementById('results');
+            if (!query) {
+                resultsDiv.innerHTML = '<div class="error">Enter a search query</div>';
+                return;
+            }
+            resultsDiv.innerHTML = '<div class="loading">Searching...</div>';
+            let url = `http://valdrok.keithschnakenberg.com:8001/memory/search?q=${encodeURIComponent(query)}&limit=${limit}`;
+            if (sibling) url += `&sibling=${sibling}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.count === 0) {
+                    resultsDiv.innerHTML = '<div class="error">No results</div>';
+                    return;
+                }
+                let html = `<div class="subtitle">Found ${data.count} for "${data.query}"</div>`;
+                data.results.forEach((result, i) => {
+                    html += `<div class="result">
+                        <div class="result-header">${i+1}. ${result.source} | ${result.sibling} | ${result.type}</div>
+                        <div class="result-text">${result.text.substring(0, 800)}${result.text.length > 800 ? '...' : ''}</div>
+                        <div class="meta">Similarity: ${result.similarity}</div>
+                    </div>`;
+                });
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        document.getElementById('query').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') search();
+        });
+    </script>
+</body>
+</html>
