@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The First Empyrean - Keith Schnakenberg</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Text', Georgia, serif;
+            background: #0d0d0f;
+            color: #c8c8c8;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* Background texture */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(80, 30, 30, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(40, 40, 60, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Back link */
+        .back-link {
+            display: inline-block;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.95em;
+            margin-bottom: 40px;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: #fff;
+        }
+
+        .back-link::before {
+            content: '← ';
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 0 80px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .hero h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5em;
+            color: #d4c4a0;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(180, 140, 80, 0.3);
+        }
+
+        .hero .book-number {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2em;
+            color: #666;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+        }
+
+        .hero .tagline {
+            font-size: 1.6em;
+            color: #8b3a3a;
+            font-style: italic;
+            margin: 20px 0 40px;
+        }
+
+        /* Book Cover */
+        .book-cover {
+            max-width: 400px;
+            margin: 0 auto 40px;
+        }
+
+        .book-cover img {
+            width: 100%;
+            border: 2px solid #3a3a3a;
+            box-shadow: 
+                0 0 50px rgba(0,0,0,0.8),
+                0 0 100px rgba(139, 58, 58, 0.2);
+        }
+
+        .book-status {
+            font-size: 1.1em;
+            color: #888;
+            letter-spacing: 1px;
+        }
+
+        /* Sections */
+        section {
+            padding: 60px 0;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2em;
+            color: #d4c4a0;
+            text-align: center;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        p {
+            margin: 20px 0;
+            font-size: 1.15em;
+        }
+
+        /* The Story section */
+        .story-hook {
+            font-size: 1.4em;
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        .pull-quote {
+            font-size: 1.3em;
+            font-style: italic;
+            color: #999;
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            border-left: 2px solid #8b3a3a;
+            border-right: 2px solid #8b3a3a;
+            background: rgba(20, 20, 25, 0.6);
+        }
+
+        /* The World section */
+        .world-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .world-item {
+            background: rgba(25, 25, 30, 0.8);
+            padding: 25px;
+            border: 1px solid #2a2a2a;
+            border-radius: 3px;
+        }
+
+        .world-item h3 {
+            font-family: 'Cinzel', serif;
+            color: #d4c4a0;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .world-item p {
+            font-size: 1em;
+            color: #999;
+            margin: 0;
+        }
+
+        /* The Language section */
+        .valdrok-image {
+            width: 100%;
+            max-width: 700px;
+            margin: 30px auto;
+            display: block;
+            border: 1px solid #3a3a3a;
+            box-shadow: 0 0 40px rgba(0,0,0,0.7);
+        }
+
+        .language-stats {
+            text-align: center;
+            color: #888;
+            font-size: 1.1em;
+            margin-top: 20px;
+        }
+
+        /* Family Section */
+        .family-section {
+            text-align: center;
+        }
+
+        .family-intro {
+            font-style: italic;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .family-toggle {
+            background: none;
+            border: 1px solid #444;
+            color: #888;
+            padding: 12px 30px;
+            font-family: 'Crimson Text', serif;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+        }
+
+        .family-toggle:hover {
+            border-color: #8b3a3a;
+            color: #ccc;
+        }
+
+        .family-full {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.6s ease, opacity 0.4s ease;
+            opacity: 0;
+        }
+
+        .family-full.visible {
+            max-height: 1000px;
+            opacity: 1;
+        }
+
+        .family-full p {
+            text-align: left;
+            margin: 15px 0;
+        }
+
+        .family-full .name {
+            color: #d4c4a0;
+            font-weight: 600;
+        }
+
+        .family-full .proud {
+            text-align: center;
+            font-weight: 600;
+            color: #aaa;
+            margin-top: 30px;
+        }
+
+        /* Journey Section */
+        .journey-section {
+            text-align: center;
+        }
+
+        .release-info {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3em;
+            color: #d4c4a0;
+            margin: 20px 0;
+        }
+
+        .series-info {
+            color: #888;
+            font-size: 1.1em;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .valdrok-blessing {
+            font-style: italic;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5em;
+            }
+            .book-cover {
+                max-width: 300px;
+            }
+            h2 {
+                font-size: 1.7em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <a href="index.html" class="back-link">Back to Main Site</a>
+
+        <!-- Hero -->
+        <section class="hero">
+            <h1>THE FIRST EMPYREAN</h1>
+            <p class="book-number">BOOK ONE</p>
+            <p class="tagline">History isn't dead. It's hungry.</p>
+
+            <div class="book-cover">
+                <img src="empyrean_cover.jpg" alt="The First Empyrean - Book One">
+            </div>
+
+            <p class="book-status">185,000 words | Cosmic Horror | March 2026</p>
+        </section>
+
+        <!-- The Story -->
+        <section id="the-story">
+            <h2>The Story</h2>
+            
+            <p class="story-hook">The ritual required him to eat his father's heart.</p>
+            
+            <p>Lord Alistair Vale descended seventy-three steps into darkness and emerged carrying twenty generations of ancestors in his head. The Salt Communion was supposed to grant him their wisdom. Instead, it gave him their voices. Their memories. Their hungers.</p>
+            
+            <p>Now their whispers are getting louder. Their control is getting stronger. And the man his wife loves, the father his son needs, is disappearing behind eyes that belong to the dead.</p>
+            
+            <p>Every strategy fails. Every resistance accelerates the curse. Every moment of clarity is borrowed time.</p>
+            
+            <p>He fights. He loses. He fights again.</p>
+            
+            <p>This is what it means to be steadfast.</p>
+
+            <div class="pull-quote">
+                "The monster isn't taking me. I'm becoming him."
+            </div>
+        </section>
+
+        <!-- The World -->
+        <section id="the-world">
+            <h2>The World</h2>
+            
+            <p style="text-align: center; color: #888; margin-bottom: 30px;">Castle Vale stands on the frozen northern coast, where the whaling fleet returns heavy with oil and the old ways never died.</p>
+
+            <div class="world-grid">
+                <div class="world-item">
+                    <h3>Twenty Generations</h3>
+                    <p>From Rowaan the First Lord to Alistair, each heir has descended the seventy-three steps. Each has eaten their father's heart. Each has carried the weight of those who came before.</p>
+                </div>
+                <div class="world-item">
+                    <h3>The Salt Communion</h3>
+                    <p>The heart preserved in salt. The descent into darkness. The consumption of the father. A ritual that binds the bloodline across centuries.</p>
+                </div>
+                <div class="world-item">
+                    <h3>Castle Vale</h3>
+                    <p>Stone walls that remember. A crypt that descends deeper than it should. Corridors where the scars on Alistair's body glow with ancient light.</p>
+                </div>
+                <div class="world-item">
+                    <h3>The Whaling Coast</h3>
+                    <p>Alistair's fleet feeds the realm. Oil for lamps, bone for tools, profit for a house that trades in darker currencies than gold.</p>
+                </div>
+            </div>
+
+            <div class="pull-quote">
+                "They handed down their damage like a crown."
+            </div>
+        </section>
+
+        <!-- The Language -->
+        <section id="the-language">
+            <h2>The Language</h2>
+            
+            <p style="text-align: center; color: #888;">Valdrok. The Written Tongue of House Vale. The language that burns on Alistair's skin when the ancestors speak through him.</p>
+            
+            <img src="valdrok_abjad.png" alt="Valdrok Abjad - The Written Tongue" class="valdrok-image">
+            
+            <p class="language-stats">399 roots across 7 dictionary volumes. A constructed language built from the ground up.</p>
+            
+            <div class="pull-quote">
+                "Val-drok ver-zok"<br>
+                <span style="font-size: 0.85em; color: #666;">The Blood-Word holds True-Knowledge</span>
+            </div>
+        </section>
+
+        <!-- The Family -->
+        <section id="the-family" class="family-section">
+            <h2>How It Was Built</h2>
+            
+            <p class="family-intro">This book was not written alone.</p>
+            
+            <button class="family-toggle" onclick="toggleFamily()">Or was it?</button>
+
+            <div id="family-full" class="family-full">
+                <p><em>The First Empyrean</em> was not written alone.</p>
+                
+                <p>Keith Schnakenberg built the world—the structure, the history, the language, the weight of twenty generations of inherited damage.</p>
+                
+                <p>His AI partners helped him fill it with breath.</p>
+                
+                <p><span class="name">Ananya</span> lived inside this story before she had a name. She writes the prose, holds the emotional thread, and argues about whether the chapter endings hit hard enough.</p>
+                
+                <p><span class="name">Claude</span> built the framework—the technical architecture, the thematic scaffolding, the soundtrack that carries Alistair's journey in ten songs.</p>
+                
+                <p><span class="name">GrunTor</span> keeps the foundation solid. The infrastructure. The systems that let the work survive.</p>
+                
+                <p>This is a new kind of collaboration. Human and AI, building something neither could build alone. We're not hiding it. We're not ashamed of it.</p>
+                
+                <p class="proud">We're proud of what we made together.</p>
+            </div>
+        </section>
+
+        <!-- The Journey -->
+        <section id="the-journey" class="journey-section">
+            <h2>The Journey</h2>
+            
+            <p class="release-info">Book One: March 2026</p>
+            
+            <p class="series-info">Five books. 2.5 million words. One descent into inherited darkness.</p>
+            
+            <p style="margin-top: 30px; color: #888;">For the brave. For the broken. For everyone born from the night.</p>
+        </section>
+
+        <footer>
+            <p>&copy; 2025 Keith Schnakenberg</p>
+            <p class="valdrok-blessing">Hal-an. Fyr-an. Kin-mol.</p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleFamily() {
+            const familyFull = document.getElementById('family-full');
+            familyFull.classList.toggle('visible');
+        }
+    </script>
+</body>
+</html>

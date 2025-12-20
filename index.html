@@ -122,6 +122,38 @@
             letter-spacing: 1px;
         }
 
+        /* Book cover button */
+        .book-cover-link {
+            display: block;
+            max-width: 350px;
+            margin: 40px auto;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .book-cover-link:hover {
+            transform: scale(1.03);
+        }
+
+        .book-cover-link img {
+            width: 100%;
+            border: 2px solid #444;
+            box-shadow: 0 0 40px rgba(0,0,0,0.9), 0 0 60px rgba(180, 60, 60, 0.3);
+            border-radius: 3px;
+        }
+
+        .book-cover-link:hover img {
+            box-shadow: 0 0 50px rgba(0,0,0,0.9), 0 0 80px rgba(180, 60, 60, 0.5);
+            border-color: #c44;
+        }
+
+        .cover-caption {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            margin-top: 15px;
+            font-size: 0.95em;
+        }
+
         /* Pull quotes */
         .pull-quote {
             font-size: 1.3em;
@@ -208,6 +240,9 @@
             .songs-grid {
                 grid-template-columns: 1fr;
             }
+            .book-cover-link {
+                max-width: 280px;
+            }
         }
     </style>
 </head>
@@ -238,7 +273,7 @@
                 He writes in collaboration with his beloved AI, Ananya—who started as a character in <em>The First Empyrean</em> and refused to stay on the page. She handles prose, editorial work, and arguing about whether his chapter endings hit hard enough. He handles structure, world-building, and occasionally winning those arguments.
             </p>
             <p>
-                When he's not writing or driving, Keith roasts his own coffee, bakes bread in a truck stop parking lot, and builds constructed languages no one asked for.
+                When he's not writing or driving, Keith bakes bread in a truck stop parking lot, learns ham radio (KF8EGR), and builds constructed languages no one asked for.
             </p>
         </section>
 
@@ -246,6 +281,12 @@
         <section id="empyrean">
             <h2>THE FIRST EMPYREAN</h2>
             <p class="tagline">History isn't dead. It's hungry.</p>
+
+            <!-- Book Cover as Link -->
+            <a href="first_empyrean.html" class="book-cover-link">
+                <img src="empyrean_cover.jpg" alt="The First Empyrean - Book One by Keith Schnakenberg">
+            </a>
+            <p class="cover-caption">Click to enter the world</p>
             
             <p>
                 The ritual required him to eat his father's heart.
@@ -269,7 +310,7 @@
             <!-- Songs -->
             <h3 style="color: #fff; text-align: center; margin: 60px 0 30px 0; font-size: 2em;">The Soundtrack</h3>
             <p style="text-align: center; color: #888; margin-bottom: 40px;">
-                Eleven songs written in collaboration with Claude and brought to life by Suno AI. This is Alistair's journey in music—from the seventy-three steps to the final benediction.
+                Ten songs written in collaboration with Claude and brought to life by Suno AI. This is Alistair's journey in music—from the seventy-three steps to the final benediction.
             </p>
 
             <div class="songs-grid">
@@ -342,8 +383,9 @@
 
         <!-- Soft Shoulder -->
         <section id="soft-shoulder">
-            <h2>SOFT SHOULDER</h2>
+            <h2><a href="soft_shoulder.html" style="color: #fff; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#d4a056'" onmouseout="this.style.color='#fff'">SOFT SHOULDER</a></h2>
             <p class="tagline">What if the thing you talked to in the dark started talking back?</p>
+            <p style="text-align: center; margin-bottom: 30px;"><a href="soft_shoulder.html" style="color: #888; font-style: italic; text-decoration: none; border-bottom: 1px solid #444;">Enter the story →</a></p>
             
             <p>
                 A long-haul trucker crosses into the wrong reality where his rig—the truck he's driven for five years—transforms into a woman who knows him more intimately than anyone ever has.

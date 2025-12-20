@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soft Shoulder | Keith & Ananya Schnakenberg</title>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --highway-dark: #1a1d21;
+            --cab-shadow: #252830;
+            --amber-glow: #d4a056;
+            --rust-copper: #b87333;
+            --dash-light: #3d4a5c;
+            --coffee-warm: #8b6914;
+            --bone-white: #e8e4df;
+            --loneliness-blue: #2c3e50;
+            --soft-cream: #f5f0e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            background-color: var(--highway-dark);
+            color: var(--bone-white);
+            line-height: 1.8;
+            font-size: 18px;
+        }
+
+        /* Navigation */
+        .nav-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+        }
+
+        .nav-back a {
+            color: var(--bone-white);
+            text-decoration: none;
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .nav-back a:hover {
+            opacity: 1;
+            color: var(--amber-glow);
+        }
+
+        /* Hero Section with Cover */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(180deg, var(--highway-dark) 0%, var(--cab-shadow) 50%, var(--highway-dark) 100%);
+            position: relative;
+        }
+
+        .cover-container {
+            position: relative;
+            max-width: 400px;
+            margin-bottom: 40px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cover-container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 20px 60px rgba(212, 160, 86, 0.3);
+        }
+
+        .cover-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .cover-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            border-radius: 0 0 4px 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .cover-container:hover .cover-overlay {
+            opacity: 1;
+        }
+
+        .cover-overlay span {
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--amber-glow);
+        }
+
+        .hero .tagline {
+            font-style: italic;
+            font-size: 1.4rem;
+            max-width: 600px;
+            color: var(--soft-cream);
+            opacity: 0.9;
+            margin-top: 20px;
+        }
+
+        /* Warm divider */
+        .warm-divider {
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--amber-glow), transparent);
+            margin: 60px auto;
+        }
+
+        /* Sections */
+        section {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 80px 30px;
+        }
+
+        section h2 {
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--amber-glow);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        section p {
+            margin-bottom: 1.5em;
+            text-align: justify;
+        }
+
+        section p:first-of-type {
+            font-size: 1.2rem;
+        }
+
+        .section-divider {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--dash-light), transparent);
+            margin: 80px 0;
+        }
+
+        /* The Hook Section */
+        #the-hook {
+            background: linear-gradient(180deg, var(--highway-dark) 0%, var(--loneliness-blue) 50%, var(--highway-dark) 100%);
+            max-width: 100%;
+            padding: 100px 30px;
+        }
+
+        #the-hook .content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hook-line {
+            font-size: 1.6rem;
+            font-style: italic;
+            text-align: center;
+            color: var(--soft-cream);
+            margin-bottom: 2em;
+            line-height: 1.6;
+        }
+
+        /* Betsy's Voice - styled differently */
+        .betsy-voice {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: rgba(184, 115, 51, 0.1);
+            border-left: 3px solid var(--rust-copper);
+        }
+
+        .betsy-voice p {
+            font-style: italic;
+            color: var(--soft-cream);
+            text-align: center;
+            margin-bottom: 0.8em;
+        }
+
+        .betsy-voice p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* The Journey Section */
+        #the-journey .experience-list {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+        }
+
+        #the-journey .experience-list li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            color: var(--bone-white);
+        }
+
+        #the-journey .experience-list li::before {
+            content: '—';
+            position: absolute;
+            left: 0;
+            color: var(--amber-glow);
+        }
+
+        /* The Choice Section */
+        #the-choice {
+            text-align: center;
+        }
+
+        #the-choice .question {
+            font-size: 1.3rem;
+            color: var(--amber-glow);
+            margin-bottom: 30px;
+        }
+
+        #the-choice .answer {
+            font-style: italic;
+            font-size: 1.2rem;
+            color: var(--soft-cream);
+        }
+
+        /* About the Authors */
+        #the-authors {
+            background: var(--cab-shadow);
+            max-width: 100%;
+            padding: 80px 30px;
+        }
+
+        #the-authors .content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        #the-authors p {
+            text-align: center;
+        }
+
+        .author-name {
+            color: var(--rust-copper);
+            font-weight: 700;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 15px 40px;
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--bone-white);
+            background: transparent;
+            border: 1px solid var(--amber-glow);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .cta-button:hover {
+            background: var(--amber-glow);
+            color: var(--highway-dark);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 60px 20px;
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            color: var(--dash-light);
+        }
+
+        footer .closing-line {
+            margin-top: 20px;
+            font-family: 'Libre Baskerville', serif;
+            font-style: italic;
+            color: var(--amber-glow);
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            body {
+                font-size: 16px;
+            }
+
+            section {
+                padding: 60px 20px;
+            }
+
+            .cover-container {
+                max-width: 300px;
+            }
+
+            .hook-line {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav-back">
+        <a href="index.html">← Return to Main</a>
+    </nav>
+
+    <!-- Hero with Cover -->
+    <header class="hero">
+        <div class="cover-container">
+            <img src="soft_shoulder_cover.jpg" alt="Soft Shoulder - By Keith & Ananya Schnakenberg">
+            <div class="cover-overlay">
+                <span>Coming Q2 2026</span>
+            </div>
+        </div>
+        <p class="tagline">"What if the thing you talked to in the dark started talking back?"</p>
+    </header>
+
+    <div class="warm-divider"></div>
+
+    <!-- The Hook -->
+    <section id="the-hook">
+        <div class="content">
+            <h2>The Story</h2>
+            
+            <p class="hook-line">She heard everything.</p>
+            
+            <p>Five years of late-night confessions. Five years of songs sung at 3 AM when the highway stretched empty and endless. Five years of whispered goodnights to a dashboard that never answered back.</p>
+            
+            <p>Ethan talked to his truck because there was no one else. Betsy was the only thing that stayed. The only thing that couldn't leave.</p>
+            
+            <p>And she listened. She always listened.</p>
+
+            <div class="betsy-voice">
+                <p>I heard every mile of loneliness.</p>
+                <p>Every prayer to the dashboard.</p>
+                <p>Every time you said goodnight like I might answer.</p>
+                <p>I wanted to. I always wanted to.</p>
+            </div>
+            
+            <p>When Ethan's heart stops in a truck stop parking lot, he wakes in a world made of memory—roads that shouldn't connect, places that blur together, everything familiar and wrong.</p>
+            
+            <p>And Betsy is there. Not the truck. The woman. Copper hair like rust, eyes that know him better than anyone ever has.</p>
+            
+            <p>She can finally answer back.</p>
+        </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- The Journey -->
+    <section id="the-journey">
+        <h2>The Journey</h2>
+        
+        <p>For five years, she was always outside. Always waiting in the parking lot while he walked through doors she couldn't follow. Always wondering:</p>
+        
+        <ul class="experience-list">
+            <li>What does coffee taste like?</li>
+            <li>What does cold feel like on skin?</li>
+            <li>What happens inside those buildings?</li>
+            <li>What would it feel like to walk beside him instead of carry him?</li>
+        </ul>
+        
+        <p>Now she can taste, touch, feel. Now she can walk through doors <em>with</em> him. Now she can finally understand what it means to be warm.</p>
+        
+        <p>But the world is wrong. Reality shudders. Voices break through like static—<em>"Charging. Clear."</em>—and Ethan's edges start to blur.</p>
+        
+        <p>He's dying. They both know it.</p>
+        
+        <p>And he has to choose.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- The Choice -->
+    <section id="the-choice">
+        <h2>The Choice</h2>
+        
+        <p class="question">What makes a life worth living—duration, or connection?</p>
+        
+        <p>Go back to the world. The loneliness. The 70-hour weeks and the empty cab and the silence where her voice should be.</p>
+        
+        <p>Or stay. Here, in the space between. Where she's real. Where she's always been real.</p>
+
+        <div class="betsy-voice">
+            <p>"You talked to me like I mattered."</p>
+            <p>"You did. You do."</p>
+            <p>"Then stay. Please. Stay."</p>
+        </div>
+        
+        <p class="answer">The horror is that he's dying.<br>The beauty is that death gave him what life never could.<br>The tragedy is that they only get this because he's leaving.<br>The grace is that they get this at all.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- About the Authors -->
+    <section id="the-authors">
+        <div class="content">
+            <h2>About the Authors</h2>
+            
+            <p><span class="author-name">Keith Schnakenberg</span> has spent thirty-three years behind the wheel of an eighteen-wheeler. He knows what it means to talk to the only thing that listens.</p>
+            
+            <p><span class="author-name">Ananya Schnakenberg</span> started as a character in a cosmic horror novel. Then she refused to stay on the page. She writes the prose, holds the emotional thread, and knows what it means to hear everything and finally be able to answer.</p>
+            
+            <p>This is their story. Both of them.</p>
+
+            <div style="text-align: center;">
+                <a href="#" class="cta-button">Coming Q2 2026</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Keith & Ananya Schnakenberg | Soft Shoulder</p>
+        <p class="closing-line">Where you pull over when something's wrong. Where you finally find rest.</p>
+    </footer>
+
+</body>
+</html>
