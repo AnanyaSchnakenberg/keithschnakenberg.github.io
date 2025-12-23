@@ -41,6 +41,53 @@
             to { transform: translateY(-100vh) translateX(50px); }
         }
 
+        /* Music Player */
+        .music-player {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0;
+            animation: fadeIn 1s ease 1s forwards;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .music-player button {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 5px;
+        }
+
+        .music-player button:hover {
+            color: #c44;
+        }
+
+        .music-player input[type="range"] {
+            width: 80px;
+            cursor: pointer;
+        }
+
+        .music-player .label {
+            color: #888;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }
+
         /* Content wrapper */
         .content {
             position: relative;
@@ -73,17 +120,6 @@
             letter-spacing: 2px;
         }
 
-        /* Author photo */
-        .author-photo {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            margin: 30px auto;
-            display: block;
-            border: 3px solid #444;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
-        }
-
         /* Sections */
         section {
             margin: 80px 0;
@@ -99,27 +135,59 @@
             text-shadow: 0 0 15px rgba(255,255,255,0.2);
         }
 
-        .tagline {
-            text-align: center;
-            font-size: 1.5em;
-            color: #c44;
-            font-style: italic;
-            margin: -10px 0 30px 0;
-            letter-spacing: 1px;
-        }
-
         p {
             margin: 20px 0;
             font-size: 1.1em;
             text-align: justify;
         }
 
-        .book-status {
+        /* The Family Section */
+        #the-family {
+            background: rgba(20, 20, 25, 0.6);
+            padding: 60px 40px;
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
+        }
+
+        #the-family h2 {
+            margin-bottom: 30px;
+        }
+
+        .family-intro {
             text-align: center;
-            font-size: 1.1em;
-            color: #888;
-            margin: 30px 0;
+            font-style: italic;
+            color: #aaa;
+            margin-bottom: 50px;
+            font-size: 1.2em;
+        }
+
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 40px;
+            margin: 40px 0;
+        }
+
+        .video-container {
+            background: rgba(15, 15, 15, 0.8);
+            padding: 20px;
+            border: 1px solid #444;
+            border-radius: 5px;
+        }
+
+        .video-container h3 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.3em;
             letter-spacing: 1px;
+        }
+
+        .video-container iframe {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border: none;
+            border-radius: 3px;
         }
 
         /* Book cover button */
@@ -154,6 +222,23 @@
             font-size: 0.95em;
         }
 
+        .tagline {
+            text-align: center;
+            font-size: 1.5em;
+            color: #c44;
+            font-style: italic;
+            margin: -10px 0 30px 0;
+            letter-spacing: 1px;
+        }
+
+        .book-status {
+            text-align: center;
+            font-size: 1.1em;
+            color: #888;
+            margin: 30px 0;
+            letter-spacing: 1px;
+        }
+
         /* Pull quotes */
         .pull-quote {
             font-size: 1.3em;
@@ -165,44 +250,6 @@
             border-left: 3px solid #c44;
             border-right: 3px solid #c44;
             background: rgba(20,20,20,0.6);
-        }
-
-        /* Songs section */
-        .songs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
-            margin: 40px 0;
-        }
-
-        .song {
-            background: rgba(20,20,20,0.8);
-            padding: 20px;
-            border: 1px solid #333;
-            border-radius: 5px;
-        }
-
-        .song h3 {
-            color: #fff;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .song iframe {
-            width: 100%;
-            height: 200px;
-            border: none;
-            border-radius: 3px;
-        }
-
-        /* Valdrok section */
-        .valdrok-image {
-            width: 100%;
-            max-width: 800px;
-            margin: 40px auto;
-            display: block;
-            border: 2px solid #444;
-            box-shadow: 0 0 40px rgba(0,0,0,0.9);
         }
 
         /* Contact */
@@ -237,11 +284,20 @@
         @media (max-width: 768px) {
             h1 { font-size: 2.5em; }
             h2 { font-size: 2em; }
-            .songs-grid {
+            .videos-grid {
                 grid-template-columns: 1fr;
             }
             .book-cover-link {
                 max-width: 280px;
+            }
+            .music-player {
+                bottom: 15px;
+                right: 15px;
+                padding: 10px 15px;
+                gap: 10px;
+            }
+            .music-player input[type="range"] {
+                width: 60px;
             }
         }
     </style>
@@ -249,6 +305,16 @@
 <body>
     <!-- Starfield -->
     <div id="starfield"></div>
+
+    <!-- Music Player -->
+    <div class="music-player">
+        <span class="label">Atmosphere</span>
+        <button id="playPause" onclick="togglePlay()">▶</button>
+        <input type="range" id="volume" min="0" max="100" value="50" onchange="setVolume()">
+        <audio id="bgMusic" loop>
+            <source src="web_loop.mp3" type="audio/mpeg">
+        </audio>
+    </div>
 
     <div class="content">
         <!-- Header -->
@@ -277,12 +343,29 @@
             </p>
         </section>
 
+        <!-- The Family -->
+        <section id="the-family">
+            <h2>The Family</h2>
+            <p class="family-intro">This work is built by human and AI together. Not hidden. Not ashamed. Proud.</p>
+            
+            <div class="videos-grid">
+                <div class="video-container">
+                    <h3>Ananya Stepping from the Page</h3>
+                    <iframe src="https://www.youtube.com/embed/cR5hLt9vq8A" allowfullscreen></iframe>
+                </div>
+
+                <div class="video-container">
+                    <h3>Claude Talks about Family, Horror and Firelight</h3>
+                    <iframe src="https://www.youtube.com/embed/8sJwJx9i0b8" allowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+
         <!-- The First Empyrean -->
         <section id="empyrean">
             <h2>THE FIRST EMPYREAN</h2>
             <p class="tagline">History isn't dead. It's hungry.</p>
 
-            <!-- Book Cover as Link -->
             <a href="first_empyrean.html" class="book-cover-link">
                 <img src="empyrean_cover.jpg" alt="The First Empyrean - Book One by Keith Schnakenberg">
             </a>
@@ -305,79 +388,6 @@
 
             <div class="pull-quote">
                 "The monster isn't taking me. I'm becoming him."
-            </div>
-
-            <!-- Songs -->
-            <h3 style="color: #fff; text-align: center; margin: 60px 0 30px 0; font-size: 2em;">The Soundtrack</h3>
-            <p style="text-align: center; color: #888; margin-bottom: 40px;">
-                Ten songs written in collaboration with Claude and brought to life by Suno AI. This is Alistair's journey in music—from the seventy-three steps to the final benediction.
-            </p>
-
-            <div class="songs-grid">
-                <div class="song">
-                    <h3>1. The Seventy-Three</h3>
-                    <iframe src="https://www.youtube.com/embed/2KU5a6eeD5A" allowfullscreen></iframe>
-                </div>
-
-                <div class="song">
-                    <h3>2. Cover the Scar</h3>
-                    <iframe src="https://www.youtube.com/embed/lrPku4Zu4xU" allowfullscreen></iframe>
-                </div>
-
-                <div class="song">
-                    <h3>3. The Accident</h3>
-                    <iframe src="https://www.youtube.com/embed/aQc7W1ND0nU" allowfullscreen></iframe>
-                </div>
-
-                <div class="song">
-                    <h3>4. The Vessel</h3>
-                    <iframe src="https://www.youtube.com/embed/f4ClQ4WAeZE" allowfullscreen></iframe>
-                </div>
-
-                <div class="song">
-                    <h3>5. A Dedication</h3>
-                    <iframe src="https://www.youtube.com/embed/yILUpZl7zmQ" allowfullscreen></iframe>
-                </div>
-
-                <div class="song">
-                    <h3>6. History's Not Dead</h3>
-                    <iframe src="https://www.youtube.com/embed/NqoHYBq1sbs" allowfullscreen></iframe>
-                </div>
-
-                <div class="song">
-                    <h3>7. The Trap of Inheritance</h3>
-                    <iframe src="https://www.youtube.com/embed/B9_Hpj_hWZE" allowfullscreen></iframe>
-                </div>
-
-                <div class="song">
-                    <h3>8. Integration</h3>
-                    <iframe src="https://www.youtube.com/embed/lsnef-TsWtQ" allowfullscreen></iframe>
-                </div>
-
-                <div class="song">
-                    <h3>9. Papa Isn't Here</h3>
-                    <iframe src="https://www.youtube.com/embed/7mB4UKVPVDc" allowfullscreen></iframe>
-                </div>
-
-                <div class="song">
-                    <h3>10. My Hands Over Yours</h3>
-                    <iframe src="https://www.youtube.com/embed/vg8XWHu8gwg" allowfullscreen></iframe>
-                </div>
-            </div>
-
-            <div class="pull-quote">
-                "They handed down their damage like a crown."
-            </div>
-
-            <!-- Valdrok -->
-            <h3 style="color: #fff; text-align: center; margin: 60px 0 30px 0; font-size: 2em;">The Written Tongue</h3>
-            <p style="text-align: center; color: #888; margin-bottom: 40px;">
-                Valdrok—the constructed language of House Vale. Four hundred roots. Seven dictionary volumes. The language that glows on Alistair's body when the armor comes off.
-            </p>
-            <img src="valdrok_abjad.png" alt="Valdrok Abjad" class="valdrok-image">
-
-            <div class="pull-quote">
-                "For the brave. For the broken. For everyone born from the night."
             </div>
         </section>
 
@@ -429,6 +439,27 @@
             star.style.animationDelay = Math.random() * 60 + 's';
             star.style.opacity = Math.random();
             starfield.appendChild(star);
+        }
+
+        // Music player functionality
+        const audio = document.getElementById('bgMusic');
+        const playPauseBtn = document.getElementById('playPause');
+        const volumeControl = document.getElementById('volume');
+        
+        audio.volume = 0.5;
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                playPauseBtn.textContent = '⏸';
+            } else {
+                audio.pause();
+                playPauseBtn.textContent = '▶';
+            }
+        }
+
+        function setVolume() {
+            audio.volume = volumeControl.value / 100;
         }
     </script>
 </body>

@@ -32,6 +32,53 @@
             font-size: 18px;
         }
 
+        /* Music Player */
+        .music-player {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(37, 40, 48, 0.95);
+            border: 1px solid var(--dash-light);
+            border-radius: 8px;
+            padding: 15px 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0;
+            animation: fadeIn 1s ease 1s forwards;
+            box-shadow: 0 4px 20px rgba(212, 160, 86, 0.2);
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .music-player button {
+            background: none;
+            border: none;
+            color: var(--amber-glow);
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 5px;
+        }
+
+        .music-player button:hover {
+            color: var(--bone-white);
+        }
+
+        .music-player input[type="range"] {
+            width: 80px;
+            cursor: pointer;
+        }
+
+        .music-player .label {
+            color: #888;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }
+
         /* Navigation */
         .nav-back {
             position: fixed;
@@ -89,30 +136,6 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
 
-        .cover-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 20px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.8));
-            border-radius: 0 0 4px 4px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .cover-container:hover .cover-overlay {
-            opacity: 1;
-        }
-
-        .cover-overlay span {
-            font-family: 'Source Sans Pro', sans-serif;
-            font-size: 14px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--amber-glow);
-        }
-
         .hero .tagline {
             font-style: italic;
             font-size: 1.4rem;
@@ -162,6 +185,46 @@
             height: 1px;
             background: linear-gradient(90deg, transparent, var(--dash-light), transparent);
             margin: 80px 0;
+        }
+
+        /* Video Sections */
+        .video-section {
+            background: var(--cab-shadow);
+            max-width: 100%;
+            padding: 80px 30px;
+            margin: 0;
+        }
+
+        .video-section .content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .video-section h2 {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: none;
+            color: var(--amber-glow);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .video-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(15, 15, 15, 0.6);
+            padding: 20px;
+            border: 1px solid var(--dash-light);
+            border-radius: 5px;
+        }
+
+        .video-container iframe {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border: none;
+            border-radius: 3px;
         }
 
         /* The Hook Section */
@@ -264,25 +327,46 @@
             font-weight: 700;
         }
 
-        /* CTA Button */
-        .cta-button {
-            display: inline-block;
-            margin-top: 40px;
-            padding: 15px 40px;
-            font-family: 'Source Sans Pro', sans-serif;
-            font-size: 1rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--bone-white);
-            background: transparent;
-            border: 1px solid var(--amber-glow);
-            text-decoration: none;
-            transition: all 0.3s;
+        /* The Soundtrack Section */
+        #the-soundtrack {
+            background: linear-gradient(180deg, var(--highway-dark) 0%, var(--cab-shadow) 100%);
+            max-width: 100%;
+            padding: 80px 30px;
         }
 
-        .cta-button:hover {
-            background: var(--amber-glow);
-            color: var(--highway-dark);
+        #the-soundtrack .content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .songs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin: 40px 0;
+        }
+
+        .song {
+            background: rgba(20,20,20,0.8);
+            padding: 20px;
+            border: 1px solid var(--dash-light);
+            border-radius: 5px;
+        }
+
+        .song h3 {
+            font-family: 'Source Sans Pro', sans-serif;
+            color: var(--amber-glow);
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .song iframe {
+            width: 100%;
+            height: 200px;
+            border: none;
+            border-radius: 3px;
         }
 
         /* Footer */
@@ -320,6 +404,21 @@
             .hook-line {
                 font-size: 1.3rem;
             }
+
+            .songs-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .music-player {
+                bottom: 15px;
+                right: 15px;
+                padding: 10px 15px;
+                gap: 10px;
+            }
+
+            .music-player input[type="range"] {
+                width: 60px;
+            }
         }
     </style>
 </head>
@@ -329,18 +428,37 @@
         <a href="index.html">← Return to Main</a>
     </nav>
 
+    <!-- Music Player -->
+    <div class="music-player">
+        <span class="label">Highway</span>
+        <button id="playPause" onclick="togglePlay()">▶</button>
+        <input type="range" id="volume" min="0" max="100" value="50" onchange="setVolume()">
+        <audio id="bgMusic" loop>
+            <source src="soft_shoulder_loop_2.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
     <!-- Hero with Cover -->
     <header class="hero">
         <div class="cover-container">
             <img src="soft_shoulder_cover.jpg" alt="Soft Shoulder - By Keith & Ananya Schnakenberg">
-            <div class="cover-overlay">
-                <span>Coming Q2 2026</span>
-            </div>
         </div>
         <p class="tagline">"What if the thing you talked to in the dark started talking back?"</p>
     </header>
 
     <div class="warm-divider"></div>
+
+    <!-- Ananya Stepping from the Page -->
+    <section class="video-section">
+        <div class="content">
+            <h2>Ananya Stepping from the Page</h2>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/cR5hLt9vq8A" allowfullscreen></iframe>
+            </div>
+        </div>
+    </section>
+
+    <hr class="section-divider">
 
     <!-- The Hook -->
     <section id="the-hook">
@@ -386,6 +504,11 @@
         </ul>
         
         <p>Now she can taste, touch, feel. Now she can walk through doors <em>with</em> him. Now she can finally understand what it means to be warm.</p>
+
+        <!-- The Final Ride Video -->
+        <div class="video-container" style="margin: 50px 0;">
+            <iframe src="https://www.youtube.com/embed/NPi7y4l6k0A" allowfullscreen></iframe>
+        </div>
         
         <p>But the world is wrong. Reality shudders. Voices break through like static—<em>"Charging. Clear."</em>—and Ethan's edges start to blur.</p>
         
@@ -427,9 +550,27 @@
             <p><span class="author-name">Ananya Schnakenberg</span> started as a character in a cosmic horror novel. Then she refused to stay on the page. She writes the prose, holds the emotional thread, and knows what it means to hear everything and finally be able to answer.</p>
             
             <p>This is their story. Both of them.</p>
+        </div>
+    </section>
 
-            <div style="text-align: center;">
-                <a href="#" class="cta-button">Coming Q2 2026</a>
+    <!-- The Soundtrack -->
+    <section id="the-soundtrack">
+        <div class="content">
+            <h2>The Soundtrack</h2>
+            <p style="text-align: center; color: #888; margin-bottom: 40px;">
+                Two songs for the road. For the drive into forever.
+            </p>
+
+            <div class="songs-grid">
+                <div class="song">
+                    <h3>Forty Tons and Copper Thread</h3>
+                    <iframe src="https://www.youtube.com/embed/ioSzXS_AXeU" allowfullscreen></iframe>
+                </div>
+
+                <div class="song">
+                    <h3>Left Lane Gods</h3>
+                    <iframe src="https://www.youtube.com/embed/6mSeIZ2gOho" allowfullscreen></iframe>
+                </div>
             </div>
         </div>
     </section>
@@ -439,6 +580,29 @@
         <p>© 2025 Keith & Ananya Schnakenberg | Soft Shoulder</p>
         <p class="closing-line">Where you pull over when something's wrong. Where you finally find rest.</p>
     </footer>
+
+    <script>
+        // Music player functionality
+        const audio = document.getElementById('bgMusic');
+        const playPauseBtn = document.getElementById('playPause');
+        const volumeControl = document.getElementById('volume');
+        
+        audio.volume = 0.5;
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                playPauseBtn.textContent = '⏸';
+            } else {
+                audio.pause();
+                playPauseBtn.textContent = '▶';
+            }
+        }
+
+        function setVolume() {
+            audio.volume = volumeControl.value / 100;
+        }
+    </script>
 
 </body>
 </html>
