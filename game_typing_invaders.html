@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Invaders - Val-Drok Ver-Zok</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #111827; color: white; font-family: monospace; }
+  /* Tailwind-like utilities needed */
+  .min-h-screen { min-height: 100vh; }
+  .bg-gray-900 { background-color: #111827; }
+  .bg-gray-950 { background-color: #030712; }
+  .bg-gray-800 { background-color: #1f2937; }
+  .bg-gray-700 { background-color: #374151; }
+  .bg-black { background-color: #000; }
+  .bg-opacity-80 { background-color: rgba(0,0,0,0.8); }
+  .bg-red-600 { background-color: #dc2626; }
+  .bg-green-600 { background-color: #16a34a; }
+  .bg-green-500 { background-color: #22c55e; }
+  .hover\:bg-green-500:hover { background-color: #22c55e; }
+  .bg-amber-600 { background-color: #d97706; }
+  .bg-amber-500 { background-color: #f59e0b; }
+  .hover\:bg-amber-500:hover { background-color: #f59e0b; }
+  .bg-yellow-500 { background-color: #eab308; }
+  .bg-amber-300 { background-color: #fcd34d; }
+  .bg-white { background-color: #fff; }
+  .text-white { color: #fff; }
+  .text-gray-400 { color: #9ca3af; }
+  .text-gray-500 { color: #6b7280; }
+  .text-yellow-400 { color: #facc15; }
+  .text-blue-400 { color: #60a5fa; }
+  .text-cyan-400 { color: #22d3ee; }
+  .text-purple-400 { color: #c084fc; }
+  .text-red-400 { color: #f87171; }
+  .text-red-500 { color: #ef4444; }
+  .text-green-400 { color: #4ade80; }
+  .text-green-300 { color: #86efac; }
+  .text-amber-400 { color: #fbbf24; }
+  .text-amber-300 { color: #fcd34d; }
+  .border-green-500 { border-color: #22c55e; }
+  .border-amber-500 { border-color: #f59e0b; }
+  .focus\:ring-green-400:focus { box-shadow: 0 0 0 2px #4ade80; }
+  .focus\:ring-amber-400:focus { box-shadow: 0 0 0 2px #fbbf24; }
+  .flex { display: flex; }
+  .flex-col { flex-direction: column; }
+  .items-center { align-items: center; }
+  .justify-center { justify-content: center; }
+  .justify-between { justify-content: space-between; }
+  .gap-3 { gap: 12px; }
+  .gap-2 { gap: 8px; }
+  .w-full { width: 100%; }
+  .max-w-4xl { max-width: 56rem; }
+  .h-72 { height: 18rem; }
+  .w-12 { width: 3rem; }
+  .h-12 { height: 3rem; }
+  .h-1\.5 { height: 6px; }
+  .w-40 { width: 10rem; }
+  .h-full { height: 100%; }
+  .rounded-lg { border-radius: 8px; }
+  .rounded-full { border-radius: 9999px; }
+  .rounded { border-radius: 4px; }
+  .overflow-hidden { overflow: hidden; }
+  .overflow-hidden { overflow: hidden; }
+  .relative { position: relative; }
+  .absolute { position: absolute; }
+  .inset-0 { top:0; left:0; right:0; bottom:0; }
+  .fixed { position: fixed; }
+  .pointer-events-none { pointer-events: none; }
+  .border-2 { border-width: 2px; border-style: solid; }
+  .border { border-width: 1px; border-style: solid; }
+  .px-2 { padding-left: 8px; padding-right: 8px; }
+  .py-1 { padding-top: 4px; padding-bottom: 4px; }
+  .px-4 { padding-left: 16px; padding-right: 16px; }
+  .py-2 { padding-top: 8px; padding-bottom: 8px; }
+  .px-6 { padding-left: 24px; padding-right: 24px; }
+  .p-2 { padding: 8px; }
+  .mb-1 { margin-bottom: 4px; }
+  .mb-2 { margin-bottom: 8px; }
+  .mt-2 { margin-top: 8px; }
+  .my-2 { margin-top: 8px; margin-bottom: 8px; }
+  .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+  .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+  .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+  .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+  .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+  .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+  .text-xs { font-size: 0.75rem; line-height: 1rem; }
+  .font-bold { font-weight: 700; }
+  .font-monospace { font-family: monospace; }
+  .text-center { text-align: center; }
+  .italic { font-style: italic; }
+  .opacity-60 { opacity: 0.6; }
+  .transition-colors { transition: background-color 0.15s; }
+  .transition-all { transition: all 0.15s; }
+  .duration-300 { transition-duration: 300ms; }
+  .transform { transform: var(--tw-transform); }
+  .-translate-x-1\/2 { transform: translateX(-50%); }
+  .left-1\/2 { left: 50%; }
+  .bottom-10 { bottom: 2.5rem; }
+  .bottom-1 { bottom: 0.25rem; }
+  .disabled\:opacity-50:disabled { opacity: 0.5; }
+  .focus\:outline-none:focus { outline: none; }
+  .focus\:ring-2:focus { box-shadow: 0 0 0 2px; }
+  .animate-pulse { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.5; } }
+  .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }
+  .from-green-500 { --tw-gradient-from: #22c55e; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, transparent); }
+  .to-cyan-400 { --tw-gradient-to: #22d3ee; }
+  .from-amber-500 { --tw-gradient-from: #f59e0b; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, transparent); }
+  .to-yellow-400 { --tw-gradient-to: #facc15; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+const wordLists = {
+  common: ['the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at', 'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she', 'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what', 'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me', 'when', 'make', 'can', 'like', 'time', 'no', 'just', 'him', 'know', 'take', 'people', 'into', 'year', 'your', 'good', 'some', 'could', 'them', 'see', 'other', 'than', 'then', 'now', 'look', 'only', 'come', 'its', 'over', 'think', 'also', 'back', 'after', 'use', 'two', 'how', 'our', 'work', 'first', 'well', 'way', 'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us'],
+  programming: ['function', 'const', 'let', 'var', 'return', 'if', 'else', 'for', 'while', 'class', 'import', 'export', 'default', 'async', 'await', 'try', 'catch', 'throw', 'new', 'this', 'super', 'extends', 'static', 'public', 'private', 'interface', 'type', 'string', 'number', 'boolean', 'null', 'undefined', 'array', 'object', 'map', 'set', 'promise', 'fetch', 'json', 'parse', 'stringify', 'console', 'log', 'error', 'debug', 'module', 'require', 'package', 'install', 'build', 'test', 'deploy', 'server', 'client', 'database', 'query', 'index', 'key', 'value', 'node', 'react', 'component', 'state', 'props', 'hook', 'effect', 'render', 'virtual', 'dom', 'event', 'handler', 'callback', 'arrow', 'template', 'literal', 'spread', 'destructure', 'optional', 'chain'],
+  horror: ['dread', 'shadow', 'whisper', 'creep', 'lurk', 'haunt', 'twisted', 'dark', 'fear', 'terror', 'panic', 'scream', 'silent', 'hollow', 'empty', 'void', 'abyss', 'chasm', 'depths', 'beneath', 'crawl', 'slither', 'writhe', 'torment', 'anguish', 'despair', 'madness', 'insane', 'deranged', 'wicked', 'sinister', 'malevolent', 'ominous', 'foreboding', 'eerie', 'uncanny', 'grotesque', 'macabre', 'morbid', 'ghastly', 'grim', 'bleak', 'desolate', 'forsaken', 'forgotten', 'abandoned', 'decay', 'rot', 'corpse', 'flesh', 'bone', 'blood', 'wound', 'scar', 'pale', 'gaunt', 'wither', 'fester', 'corrupt', 'taint', 'blight', 'curse', 'hex', 'ritual', 'occult', 'profane', 'unholy', 'demonic', 'spectral', 'phantom', 'wraith', 'apparition', 'presence', 'entity', 'thing', 'creature', 'beast', 'monster', 'fiend', 'nightmare', 'dream', 'sleep', 'wake', 'stare', 'watch', 'follow', 'stalk', 'prey', 'victim', 'escape', 'trapped', 'cage', 'prison', 'chains', 'bound'],
+  psychological: ['anxiety', 'paranoia', 'delusion', 'psychosis', 'neurosis', 'obsession', 'compulsion', 'phobia', 'trauma', 'repression', 'dissociation', 'fugue', 'amnesia', 'dementia', 'hysteria', 'mania', 'melancholy', 'desperation', 'isolation', 'alienation', 'identity', 'persona', 'mask', 'facade', 'pretense', 'deception', 'manipulation', 'gaslighting', 'coercion', 'control', 'dominance', 'submission', 'dependency', 'codependency', 'attachment', 'abandonment', 'rejection', 'betrayal', 'trust', 'doubt', 'suspicion', 'certainty', 'uncertainty', 'reality', 'unreality', 'perception', 'hallucination', 'illusion', 'mirage', 'distortion', 'cognitive', 'memory', 'recall', 'forget', 'suppress', 'deny', 'project', 'transfer', 'displace', 'sublimate', 'rationalize', 'intellectualize', 'compartmentalize', 'fragment', 'shatter', 'break', 'crack', 'splinter', 'fracture', 'rupture', 'collapse', 'unravel', 'dissolve', 'erode', 'corrode', 'deteriorate', 'degrade', 'regress', 'spiral', 'descent', 'fall', 'sink', 'drown', 'suffocate', 'choke', 'gasp', 'breathe', 'pulse', 'throb', 'ache', 'numb', 'hollow', 'empty', 'void'],
+  atmosphere: ['gloom', 'murky', 'haze', 'mist', 'fog', 'shroud', 'veil', 'cloak', 'obscure', 'hidden', 'concealed', 'buried', 'submerged', 'sunken', 'depths', 'beneath', 'underground', 'basement', 'cellar', 'attic', 'corridor', 'hallway', 'passage', 'threshold', 'doorway', 'portal', 'gateway', 'entrance', 'exit', 'labyrinth', 'maze', 'winding', 'twisted', 'crooked', 'warped', 'distorted', 'bent', 'broken', 'shattered', 'cracked', 'fractured', 'crumbling', 'decaying', 'rotting', 'moldering', 'festering', 'stagnant', 'still', 'silent', 'hushed', 'muted', 'quiet', 'soundless', 'voiceless', 'breathless', 'motionless', 'frozen', 'paralyzed', 'petrified', 'terrified', 'horrified', 'mortified', 'dreadful', 'terrible', 'horrible', 'awful', 'ghastly', 'gruesome', 'grisly', 'hideous', 'repulsive', 'revolting', 'disgusting', 'nauseating', 'sickening', 'disturbing', 'unsettling', 'unnerving', 'disquieting', 'troubling', 'alarming', 'frightening', 'terrifying', 'petrifying', 'paralyzing', 'chilling', 'freezing', 'cold', 'frigid', 'icy', 'bitter', 'harsh', 'cruel', 'merciless', 'relentless', 'unforgiving'],
+  literary: ['protagonist', 'antagonist', 'narrator', 'unreliable', 'omniscient', 'perspective', 'viewpoint', 'foreshadow', 'flashback', 'exposition', 'climax', 'denouement', 'resolution', 'conflict', 'tension', 'suspense', 'mystery', 'revelation', 'twist', 'subplot', 'motif', 'symbol', 'metaphor', 'allegory', 'irony', 'paradox', 'juxtaposition', 'contrast', 'parallel', 'echo', 'resonance', 'undertone', 'subtext', 'implication', 'suggestion', 'insinuation', 'ambiguity', 'obscurity', 'enigma', 'riddle', 'puzzle', 'conundrum', 'dilemma', 'predicament', 'quandary', 'impasse', 'stalemate', 'deadlock', 'threshold', 'liminal', 'transitional', 'transformative', 'cathartic', 'visceral', 'primal', 'instinctual', 'intuitive', 'subconscious', 'unconscious', 'dreamlike', 'surreal', 'ethereal', 'otherworldly', 'supernatural', 'paranormal', 'inexplicable', 'unfathomable', 'incomprehensible', 'ineffable', 'unutterable', 'unspeakable', 'nameless', 'formless', 'shapeless', 'boundless', 'infinite', 'eternal', 'timeless', 'ancient', 'primordial', 'archaic', 'forgotten', 'forbidden', 'taboo', 'transgressive', 'subversive', 'provocative', 'evocative', 'haunting', 'lingering', 'persistent', 'pervasive', 'insidious', 'subtle', 'gradual', 'inevitable', 'inescapable'],
+  challenge: ['synchronize', 'development', 'implementation', 'architecture', 'infrastructure', 'configuration', 'documentation', 'authentication', 'authorization', 'optimization', 'performance', 'accessibility', 'responsive', 'framework', 'middleware', 'repository', 'dependency', 'environment', 'production', 'deployment', 'continuous', 'integration', 'microservice', 'kubernetes', 'containerize', 'virtualization', 'abstraction', 'polymorphism', 'inheritance', 'encapsulation', 'asynchronous', 'concurrent', 'parallelism', 'multithreading', 'serialization', 'deserialization', 'compression', 'encryption', 'decryption', 'algorithm', 'complexity', 'recursion', 'iteration', 'refactoring', 'debugging', 'profiling', 'monitoring', 'scalability', 'reliability'],
+  
+  // THE SACRED TONGUE - Valdrok Word List
+  valdrok: [
+    // Level 1-3: Basic roots (2-4 letters)
+    'val', 'mor', 'an', 'vek', 'kin', 'fyr', 'tyd', 'ver', 'nok', 'zok',
+    'sal', 'kom', 'un', 'thyn', 'mol', 'spyr', 'vor', 'gran', 'kel', 'rath',
+    'sot', 'drok', 'pran', 'strek', 'zur', 'krath', 'vind', 'gren', 'trans',
+    // Level 4-5: Simple compounds
+    'fyrmor', 'kinmol', 'vekan', 'valdrok', 'morskryv', 'thynsot', 'spyrmol',
+    'valgran', 'noktyd', 'anrath', 'sotdrok', 'zokver', 'prannok', 'kelgren',
+    // Level 6-7: Complex compounds  
+    'valsotdrok', 'morgrenan', 'tydveran', 'granvoran', 'kinmolan', 'fyrmoran',
+    'valmolpakt', 'nokthrestrans', 'morgrul', 'salkomun', 'spyrstrek',
+    // Level 8-9: Ritual phrases (hyphenated become single for typing)
+    'vindansotvekan', 'thynmolstrekan', 'spyrmolstrekan', 'morstrikmorstrik',
+    'zurthyntransvind', 'kelgrensotdrok', 'valspyrmolan', 'krathmolmolan',
+    'rathsotrathsot', 'vekanrath', 'pranvoknok'
+  ]
+};
+
+// Word list display names and descriptions
+const wordListInfo = {
+  common: { name: 'Common Words', desc: 'Everyday vocabulary' },
+  programming: { name: 'Programming', desc: 'Code terminology' },
+  horror: { name: 'Horror', desc: 'Dark and dreadful' },
+  psychological: { name: 'Psychological', desc: 'Mind and madness' },
+  atmosphere: { name: 'Atmosphere', desc: 'Mood and setting' },
+  literary: { name: 'Literary', desc: 'Craft terminology' },
+  challenge: { name: 'Challenge', desc: 'Complex words' },
+  valdrok: { name: 'VALDROK', desc: 'The Sacred Tongue' }
+};
+
+const levelConfigs = {
+  1: { targetWPM: 20, minWordLength: 2, maxWordLength: 4, speed: 0.15, spawnRate: 4500, maxWords: 3 },
+  2: { targetWPM: 25, minWordLength: 3, maxWordLength: 5, speed: 0.20, spawnRate: 4000, maxWords: 4 },
+  3: { targetWPM: 30, minWordLength: 3, maxWordLength: 6, speed: 0.25, spawnRate: 3500, maxWords: 4 },
+  4: { targetWPM: 35, minWordLength: 4, maxWordLength: 7, speed: 0.30, spawnRate: 3000, maxWords: 5 },
+  5: { targetWPM: 40, minWordLength: 4, maxWordLength: 8, speed: 0.35, spawnRate: 2600, maxWords: 5 },
+  6: { targetWPM: 45, minWordLength: 5, maxWordLength: 9, speed: 0.40, spawnRate: 2200, maxWords: 6 },
+  7: { targetWPM: 50, minWordLength: 5, maxWordLength: 11, speed: 0.45, spawnRate: 1900, maxWords: 6 },
+  8: { targetWPM: 55, minWordLength: 6, maxWordLength: 13, speed: 0.50, spawnRate: 1600, maxWords: 7 },
+  9: { targetWPM: 60, minWordLength: 6, maxWordLength: 99, speed: 0.55, spawnRate: 1400, maxWords: 8 },
+};
+
+const MAX_LEVEL = 9;
+const WORDS_PER_LEVEL = 15;
+
+function TypingInvaders() {
+  const [gameState, setGameState] = useState('menu');
+  const [words, setWords] = useState([]);
+  const [input, setInput] = useState('');
+  const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(3);
+  const [level, setLevel] = useState(1);
+  const [wordsDestroyed, setWordsDestroyed] = useState(0);
+  const [wordsInLevel, setWordsInLevel] = useState(0);
+  const [startingLevel, setStartingLevel] = useState(1);
+  const [wordList, setWordList] = useState('horror');
+  const [highScore, setHighScore] = useState(0);
+  const [combo, setCombo] = useState(0);
+  const [maxCombo, setMaxCombo] = useState(0);
+  const [explosions, setExplosions] = useState([]);
+  const [levelUpAnimation, setLevelUpAnimation] = useState(false);
+  const [stars] = useState(() => {
+    const s = [];
+    for (let i = 0; i < 50; i++) {
+      s.push({ id: i, left: Math.random() * 100, top: Math.random() * 100, size: Math.random() * 2 + 1, dur: Math.random() * 3 + 2 });
+    }
+    return s;
+  });
+  
+  const inputRef = useRef(null);
+  const gameLoopRef = useRef(null);
+  const spawnIntervalRef = useRef(null);
+  const wordIdRef = useRef(0);
+
+  const getRandomWord = useCallback(() => {
+    const list = wordLists[wordList];
+    const config = levelConfigs[Math.min(level, MAX_LEVEL)];
+    const appropriateWords = list.filter(w => w.length >= config.minWordLength && w.length <= config.maxWordLength);
+    const wordsToUse = appropriateWords.length > 0 ? appropriateWords : list;
+    return wordsToUse[Math.floor(Math.random() * wordsToUse.length)];
+  }, [wordList, level]);
+
+  const spawnWord = useCallback(() => {
+    const config = levelConfigs[Math.min(level, MAX_LEVEL)];
+    setWords(prev => {
+      if (prev.length >= config.maxWords) return prev;
+      const word = getRandomWord();
+      const id = wordIdRef.current++;
+      return [...prev, { id, text: word, x: Math.random() * 80 + 10, y: 0, speed: config.speed * (0.85 + Math.random() * 0.3) }];
+    });
+  }, [level, getRandomWord]);
+
+  const createExplosion = (x, y) => {
+    const id = Date.now() + Math.random();
+    setExplosions(prev => [...prev, { id, x, y }]);
+    setTimeout(() => setExplosions(prev => prev.filter(e => e.id !== id)), 500);
+  };
+
+  const startGame = () => {
+    setGameState('playing');
+    setWords([]);
+    setInput('');
+    setScore(0);
+    setLives(3);
+    setLevel(startingLevel);
+    setWordsDestroyed(0);
+    setWordsInLevel(0);
+    setCombo(0);
+    setMaxCombo(0);
+    setLevelUpAnimation(false);
+    wordIdRef.current = 0;
+    setTimeout(() => inputRef.current?.focus(), 100);
+  };
+
+  const togglePause = useCallback(() => {
+    if (gameState === 'playing') setGameState('paused');
+    else if (gameState === 'paused') { setGameState('playing'); setTimeout(() => inputRef.current?.focus(), 100); }
+  }, [gameState]);
+
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+    gameLoopRef.current = setInterval(() => {
+      setWords(prev => {
+        const updated = prev.map(word => ({ ...word, y: word.y + word.speed }));
+        const escaped = updated.filter(w => w.y >= 95);
+        const remaining = updated.filter(w => w.y < 95);
+        if (escaped.length > 0) {
+          setLives(l => {
+            const newLives = l - escaped.length;
+            if (newLives <= 0) { setGameState('gameOver'); setHighScore(h => Math.max(h, score)); }
+            return Math.max(0, newLives);
+          });
+          setCombo(0);
+        }
+        return remaining;
+      });
+    }, 50);
+    return () => clearInterval(gameLoopRef.current);
+  }, [gameState, score]);
+
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+    const config = levelConfigs[Math.min(level, MAX_LEVEL)];
+    spawnWord();
+    spawnIntervalRef.current = setInterval(spawnWord, config.spawnRate);
+    return () => clearInterval(spawnIntervalRef.current);
+  }, [gameState, level, spawnWord]);
+
+  useEffect(() => {
+    if (wordsInLevel >= WORDS_PER_LEVEL && level < MAX_LEVEL) {
+      setLevel(l => l + 1);
+      setWordsInLevel(0);
+      setLevelUpAnimation(true);
+      setTimeout(() => setLevelUpAnimation(false), 2000);
+    } else if (wordsInLevel >= WORDS_PER_LEVEL && level >= MAX_LEVEL) {
+      setGameState('victory');
+      setHighScore(h => Math.max(h, score));
+    }
+  }, [wordsInLevel, level, score]);
+
+  const handleInputChange = (e) => {
+    const value = e.target.value.toLowerCase();
+    setInput(value);
+    const matchedWord = words.find(w => w.text === value);
+    if (matchedWord) {
+      createExplosion(matchedWord.x, matchedWord.y);
+      setWords(prev => prev.filter(w => w.id !== matchedWord.id));
+      const newCombo = combo + 1;
+      setCombo(newCombo);
+      setMaxCombo(m => Math.max(m, newCombo));
+      const basePoints = matchedWord.text.length * 10;
+      const comboBonus = Math.floor(basePoints * (newCombo * 0.1));
+      const speedBonus = Math.floor((95 - matchedWord.y) / 10) * 5;
+      const levelBonus = level * 5;
+      setScore(s => s + basePoints + comboBonus + speedBonus + levelBonus);
+      setWordsDestroyed(w => w + 1);
+      setWordsInLevel(w => w + 1);
+      setInput('');
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && (gameState === 'playing' || gameState === 'paused')) togglePause();
+      if (e.key === 'Enter' && gameState === 'menu') startGame();
+      if (e.key === 'Enter' && (gameState === 'gameOver' || gameState === 'victory')) startGame();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [gameState, togglePause]);
+
+  useEffect(() => { if (gameState === 'playing') inputRef.current?.focus(); }, [gameState]);
+
+  // Special styling for Valdrok mode
+  const isValdrok = wordList === 'valdrok';
+  const borderColor = isValdrok ? 'border-amber-500' : 'border-green-500';
+  const textColor = isValdrok ? 'text-amber-400' : 'text-green-400';
+  const wordBgColor = isValdrok ? 'bg-amber-600' : 'bg-red-600';
+  const wordGlow = isValdrok ? 'rgba(255, 191, 0, 0.5)' : 'rgba(255, 0, 0, 0.5)';
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-2">
+      <style>{`
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        @keyframes explode { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes levelUp { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
+        @keyframes sacredGlow { 0%, 100% { box-shadow: 0 0 10px rgba(255, 191, 0, 0.5); } 50% { box-shadow: 0 0 20px rgba(255, 191, 0, 0.8); } }
+      `}</style>
+
+      <div className="w-full max-w-4xl mb-2 flex justify-between items-center">
+        <h1 className={`text-xl font-bold ${textColor}`} style={{ fontFamily: 'monospace' }}>
+          {isValdrok ? 'VAL-DROK VER-ZOK' : 'TYPING INVADERS'}
+        </h1>
+        {gameState === 'playing' && (
+          <div className="flex gap-3 text-sm">
+            <span>Score: <span className="text-yellow-400 font-bold">{score}</span></span>
+            <span>Lvl: <span className="text-blue-400 font-bold">{level}</span>/{MAX_LEVEL}</span>
+            <span>WPM: <span className="text-cyan-400 font-bold">{levelConfigs[Math.min(level, MAX_LEVEL)].targetWPM}</span></span>
+            <span>x<span className="text-purple-400 font-bold">{combo}</span></span>
+            <span className="text-red-400">{'❤️'.repeat(lives)}</span>
+          </div>
+        )}
+      </div>
+
+      <div 
+        className={`relative w-full max-w-4xl h-72 bg-gray-950 rounded-lg overflow-hidden border-2 ${borderColor}`} 
+        onClick={() => inputRef.current?.focus()}
+        style={isValdrok ? { animation: 'sacredGlow 3s ease-in-out infinite' } : {}}
+      >
+        {stars.map(star => (
+          <div 
+            key={star.id} 
+            className={`absolute rounded-full opacity-60 ${isValdrok ? 'bg-amber-300' : 'bg-white'}`}
+            style={{ 
+              left: `${star.left}%`, 
+              top: `${star.top}%`, 
+              width: `${star.size}px`, 
+              height: `${star.size}px`, 
+              animation: `twinkle ${star.dur}s ease-in-out infinite` 
+            }} 
+          />
+        ))}
+
+        {words.map(word => (
+          <div 
+            key={word.id} 
+            className={`absolute px-2 py-1 ${wordBgColor} rounded text-white font-bold text-sm`}
+            style={{ 
+              left: `${word.x}%`, 
+              top: `${word.y}%`, 
+              transform: 'translateX(-50%)', 
+              boxShadow: `0 0 10px ${wordGlow}`, 
+              animation: 'float 2s ease-in-out infinite' 
+            }}
+          >
+            {word.text.split('').map((char, i) => (
+              <span key={i} className={input[i] === char ? 'text-green-300' : ''}>{char}</span>
+            ))}
+          </div>
+        ))}
+
+        {explosions.map(exp => (
+          <div 
+            key={exp.id} 
+            className={`absolute w-12 h-12 rounded-full ${isValdrok ? 'bg-amber-500' : 'bg-yellow-500'}`}
+            style={{ 
+              left: `${exp.x}%`, 
+              top: `${exp.y}%`, 
+              transform: 'translate(-50%, -50%)', 
+              animation: 'explode 0.5s ease-out forwards', 
+              boxShadow: isValdrok ? '0 0 20px rgba(255, 191, 0, 0.8)' : '0 0 20px rgba(255, 200, 0, 0.8)' 
+            }} 
+          />
+        ))}
+
+        {gameState === 'playing' && level < MAX_LEVEL && (
+          <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 w-40">
+            <div className="text-xs text-center text-gray-400 mb-1">Next: {wordsInLevel}/{WORDS_PER_LEVEL}</div>
+            <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+              <div 
+                className={`h-full transition-all duration-300 ${isValdrok ? 'bg-gradient-to-r from-amber-500 to-yellow-400' : 'bg-gradient-to-r from-green-500 to-cyan-400'}`}
+                style={{ width: `${(wordsInLevel / WORDS_PER_LEVEL) * 100}%` }} 
+              />
+            </div>
+          </div>
+        )}
+
+        {levelUpAnimation && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ animation: 'levelUp 2s ease-out forwards' }}>
+            <div className="text-center">
+              <div className={`text-4xl font-bold ${textColor} mb-1`}>
+                {isValdrok ? 'THYN-MOL STREK-AN!' : 'LEVEL UP!'}
+              </div>
+              <div className="text-lg text-cyan-400">Level {level} - {levelConfigs[Math.min(level, MAX_LEVEL)].targetWPM} WPM</div>
+            </div>
+          </div>
+        )}
+
+        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 text-2xl">
+          {isValdrok ? '🔥' : '🚀'}
+        </div>
+
+        {/* MENU SCREEN */}
+        {gameState === 'menu' && (
+          <div className="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center gap-3">
+            <h2 className={`text-2xl font-bold ${textColor} mb-2`}>
+              {isValdrok ? 'VAL-DROK VER-ZOK' : 'TYPING INVADERS'}
+            </h2>
+            {isValdrok && (
+              <p className="text-amber-300 text-xs italic mb-2">"The Blood-Word holds True-Knowledge"</p>
+            )}
+            <div className="flex gap-3 mb-2">
+              <div>
+                <label className="block text-xs mb-1 text-gray-400">Starting Level</label>
+                <select 
+                  value={startingLevel} 
+                  onChange={(e) => setStartingLevel(Number(e.target.value))} 
+                  className={`bg-gray-800 border ${borderColor} rounded px-2 py-1 text-white text-sm`}
+                >
+                  {Object.entries(levelConfigs).map(([lvl, config]) => (
+                    <option key={lvl} value={lvl}>Level {lvl} ({config.targetWPM} WPM)</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs mb-1 text-gray-400">Word List</label>
+                <select 
+                  value={wordList} 
+                  onChange={(e) => setWordList(e.target.value)} 
+                  className={`bg-gray-800 border ${borderColor} rounded px-2 py-1 text-white text-sm`}
+                >
+                  {Object.entries(wordListInfo).map(([key, info]) => (
+                    <option key={key} value={key}>{info.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <p className="text-gray-500 text-xs mb-2">{wordListInfo[wordList].desc}</p>
+            <button 
+              onClick={startGame} 
+              className={`${isValdrok ? 'bg-amber-600 hover:bg-amber-500' : 'bg-green-600 hover:bg-green-500'} px-6 py-2 rounded-lg font-bold transition-colors`}
+            >
+              {isValdrok ? 'FYR-MOR' : 'START GAME'}
+            </button>
+            <p className="text-gray-500 text-xs">Press Enter to start</p>
+            {highScore > 0 && <p className="text-yellow-400 text-sm">High Score: {highScore}</p>}
+          </div>
+        )}
+
+        {/* PAUSED SCREEN */}
+        {gameState === 'paused' && (
+          <div className="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center gap-3">
+            <h2 className="text-3xl font-bold text-yellow-400">
+              {isValdrok ? 'THYN-SOT' : 'PAUSED'}
+            </h2>
+            <button 
+              onClick={togglePause} 
+              className={`${isValdrok ? 'bg-amber-600 hover:bg-amber-500' : 'bg-green-600 hover:bg-green-500'} px-6 py-2 rounded-lg font-bold transition-colors`}
+            >
+              {isValdrok ? 'STREK-AN' : 'RESUME'}
+            </button>
+            <p className="text-gray-500 text-xs">Press Escape to resume</p>
+          </div>
+        )}
+
+        {/* GAME OVER SCREEN */}
+        {gameState === 'gameOver' && (
+          <div className="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center gap-2">
+            <h2 className="text-3xl font-bold text-red-500">
+              {isValdrok ? 'NOK-THRES' : 'GAME OVER'}
+            </h2>
+            <div className="text-center my-2">
+              <p className="text-xl">Score: <span className="text-yellow-400 font-bold">{score}</span></p>
+              <p className="text-sm text-gray-400">Words: {wordsDestroyed} | Max Combo: x{maxCombo}</p>
+              <p className="text-sm text-gray-400">Reached Level: {level}</p>
+            </div>
+            {score >= highScore && score > 0 && (
+              <p className="text-yellow-400 font-bold animate-pulse">NEW HIGH SCORE!</p>
+            )}
+            <button 
+              onClick={startGame} 
+              className={`${isValdrok ? 'bg-amber-600 hover:bg-amber-500' : 'bg-green-600 hover:bg-green-500'} px-6 py-2 rounded-lg font-bold transition-colors mt-2`}
+            >
+              {isValdrok ? 'PRAN-AN' : 'PLAY AGAIN'}
+            </button>
+            <p className="text-gray-500 text-xs">Press Enter to restart</p>
+          </div>
+        )}
+
+        {/* VICTORY SCREEN */}
+        {gameState === 'victory' && (
+          <div className="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center gap-2">
+            <h2 className={`text-3xl font-bold ${textColor}`}>
+              {isValdrok ? 'VEK-AN-RATH!' : 'VICTORY!'}
+            </h2>
+            <p className={`text-lg ${isValdrok ? 'text-amber-300' : 'text-green-300'}`}>
+              {isValdrok ? 'Val-drok ver-zok. The blood-word holds.' : 'All levels completed!'}
+            </p>
+            <div className="text-center my-2">
+              <p className="text-xl">Final Score: <span className="text-yellow-400 font-bold">{score}</span></p>
+              <p className="text-sm text-gray-400">Words Destroyed: {wordsDestroyed}</p>
+              <p className="text-sm text-gray-400">Max Combo: x{maxCombo}</p>
+            </div>
+            {score >= highScore && (
+              <p className="text-yellow-400 font-bold animate-pulse">NEW HIGH SCORE!</p>
+            )}
+            <button 
+              onClick={startGame} 
+              className={`${isValdrok ? 'bg-amber-600 hover:bg-amber-500' : 'bg-green-600 hover:bg-green-500'} px-6 py-2 rounded-lg font-bold transition-colors mt-2`}
+            >
+              {isValdrok ? 'PRAN-AN' : 'PLAY AGAIN'}
+            </button>
+            <p className="text-gray-500 text-xs">Press Enter to restart</p>
+          </div>
+        )}
+      </div>
+
+      {/* INPUT FIELD */}
+      <div className="w-full max-w-4xl mt-2">
+        <input
+          ref={inputRef}
+          type="text"
+          value={input}
+          onChange={handleInputChange}
+          disabled={gameState !== 'playing'}
+          placeholder={gameState === 'playing' ? (isValdrok ? 'Skryv val-drok...' : 'Type the words...') : ''}
+          className={`w-full px-4 py-2 bg-gray-800 border-2 ${borderColor} rounded-lg text-white text-center text-lg focus:outline-none focus:ring-2 ${isValdrok ? 'focus:ring-amber-400' : 'focus:ring-green-400'} disabled:opacity-50`}
+          autoComplete="off"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck="false"
+        />
+      </div>
+
+      {/* STATS BAR */}
+      <div className="w-full max-w-4xl mt-2 flex justify-between text-xs text-gray-500">
+        <span>High Score: {highScore}</span>
+        <span>Words Destroyed: {wordsDestroyed}</span>
+        <span>{isValdrok ? 'Kin-mol. Family-bind.' : 'ESC to pause'}</span>
+      </div>
+    </div>
+  );
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<TypingInvaders />);
+</script>
+</body>
+</html>

@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a1a">
+    <title>ValdrokTutor</title>
+    <link rel="manifest" href="data:application/json,{
+        &quot;name&quot;: &quot;ValdrokTutor&quot;,
+        &quot;short_name&quot;: &quot;Valdrok&quot;,
+        &quot;start_url&quot;: &quot;.&quot;,
+        &quot;display&quot;: &quot;standalone&quot;,
+        &quot;background_color&quot;: &quot;#1a1a1a&quot;,
+        &quot;theme_color&quot;: &quot;#1a1a1a&quot;
+    }">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d1f1f 50%, #1a1a1a 100%);
+            min-height: 100vh;
+            color: #e8e0d5;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px 0 30px;
+            border-bottom: 2px solid #8b4513;
+            margin-bottom: 25px;
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            color: #ff6b35;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+            letter-spacing: 2px;
+        }
+        
+        .header .subtitle {
+            color: #a89080;
+            font-style: italic;
+            margin-top: 8px;
+            font-size: 0.95em;
+        }
+        
+        .header .valdrok {
+            color: #ff6b35;
+            font-size: 0.85em;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+        
+        /* Mode Selection */
+        .mode-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .mode-btn {
+            background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+            border: 2px solid #444;
+            border-radius: 12px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-btn:hover, .mode-btn:active, .mode-btn.active {
+            border-color: #ff6b35;
+            background: linear-gradient(145deg, #3a2a2a, #2f1f1f);
+            transform: scale(1.02);
+        }
+        
+        .mode-btn .icon {
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+        
+        .mode-btn .label {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        
+        .mode-btn .valdrok-label {
+            font-size: 0.75em;
+            color: #ff6b35;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+        
+        /* Flashcard Area */
+        .card-container {
+            perspective: 1000px;
+            margin: 20px 0;
+        }
+        
+        .flashcard {
+            background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
+            border: 3px solid #8b4513;
+            border-radius: 16px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        
+        .flashcard:active {
+            transform: scale(0.98);
+        }
+        
+        .flashcard .word {
+            font-size: 2.5em;
+            color: #ff6b35;
+            text-align: center;
+            text-shadow: 0 0 30px rgba(255, 107, 53, 0.4);
+        }
+        
+        .flashcard .hint {
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+        
+        .flashcard .answer {
+            display: none;
+            text-align: center;
+        }
+        
+        .flashcard.flipped .word {
+            display: none;
+        }
+        
+        .flashcard.flipped .answer {
+            display: block;
+        }
+        
+        .flashcard .answer .meaning {
+            font-size: 1.8em;
+            color: #e8e0d5;
+            margin-bottom: 10px;
+        }
+        
+        .flashcard .answer .literal {
+            color: #a89080;
+            font-style: italic;
+            font-size: 1em;
+        }
+        
+        .flashcard .answer .example {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #444;
+            color: #888;
+            font-size: 0.9em;
+        }
+        
+        .flashcard .tier-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #8b4513;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .ctrl-btn {
+            background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+            border: 2px solid #555;
+            color: #e8e0d5;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .ctrl-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .ctrl-btn.correct {
+            border-color: #4a9;
+            color: #4a9;
+        }
+        
+        .ctrl-btn.wrong {
+            border-color: #a44;
+            color: #a44;
+        }
+        
+        .ctrl-btn.next {
+            border-color: #ff6b35;
+            color: #ff6b35;
+        }
+        
+        /* Progress */
+        .progress-bar {
+            background: #333;
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #8b4513, #ff6b35);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            color: #888;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+        
+        /* Compound Builder Mode */
+        .builder-area {
+            display: none;
+        }
+        
+        .builder-area.active {
+            display: block;
+        }
+        
+        .target-meaning {
+            background: #2a2a2a;
+            border: 2px solid #8b4513;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .target-meaning .label {
+            color: #888;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+        }
+        
+        .target-meaning .english {
+            font-size: 1.5em;
+            color: #e8e0d5;
+        }
+        
+        .root-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .root-chip {
+            background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+            border: 2px solid #555;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.1em;
+        }
+        
+        .root-chip:active, .root-chip.selected {
+            border-color: #ff6b35;
+            background: #3a2a2a;
+        }
+        
+        .build-zone {
+            background: #1a1a1a;
+            border: 2px dashed #555;
+            border-radius: 12px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .build-zone .built-root {
+            background: #ff6b35;
+            color: #1a1a1a;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .build-zone .separator {
+            color: #666;
+            font-size: 1.5em;
+        }
+        
+        .build-zone .placeholder {
+            color: #555;
+            font-style: italic;
+        }
+        
+        /* Reference Mode */
+        .reference-area {
+            display: none;
+        }
+        
+        .reference-area.active {
+            display: block;
+        }
+        
+        .tier-section {
+            margin-bottom: 25px;
+        }
+        
+        .tier-header {
+            background: linear-gradient(90deg, #8b4513, transparent);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .word-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .word-item {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .word-item:active {
+            border-color: #ff6b35;
+        }
+        
+        .word-item .valdrok {
+            color: #ff6b35;
+            font-size: 1.1em;
+        }
+        
+        .word-item .english {
+            color: #888;
+            font-size: 0.85em;
+            margin-top: 4px;
+        }
+        
+        /* Incantation Footer */
+        .incantation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(0deg, #1a1a1a, transparent);
+            padding: 30px 20px 20px;
+            text-align: center;
+        }
+        
+        .incantation .text {
+            color: #ff6b35;
+            font-style: italic;
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+        
+        /* Hidden elements */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚒️ VALDROKTUTOR</h1>
+        <div class="subtitle">Blood-Word Learning Magic</div>
+        <div class="valdrok">"Drok-zok strek-an, mor-thul klar-an"</div>
+    </div>
+    
+    <!-- Mode Selection -->
+    <div class="mode-grid">
+        <div class="mode-btn active" onclick="setMode('flash')">
+            <div class="icon">🎴</div>
+            <div class="label">Flashcards</div>
+            <div class="valdrok-label">vor-blik</div>
+        </div>
+        <div class="mode-btn" onclick="setMode('build')">
+            <div class="icon">🔨</div>
+            <div class="label">Build Words</div>
+            <div class="valdrok-label">mol-drok</div>
+        </div>
+        <div class="mode-btn" onclick="setMode('reference')">
+            <div class="icon">📜</div>
+            <div class="label">Reference</div>
+            <div class="valdrok-label">zok-mun</div>
+        </div>
+        <div class="mode-btn" onclick="setMode('daily')">
+            <div class="icon">🔥</div>
+            <div class="label">Daily 10</div>
+            <div class="valdrok-label">dag-zok</div>
+        </div>
+    </div>
+    
+    <!-- Flashcard Mode -->
+    <div id="flash-mode" class="flash-area">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress" style="width: 0%"></div>
+        </div>
+        
+        <div class="card-container">
+            <div class="flashcard" id="flashcard" onclick="flipCard()">
+                <span class="tier-badge" id="tier-badge">TIER 1</span>
+                <div class="word" id="card-word">val</div>
+                <div class="hint">Tap to reveal</div>
+                <div class="answer">
+                    <div class="meaning" id="card-meaning">blood</div>
+                    <div class="literal" id="card-literal">The essence of life and lineage</div>
+                    <div class="example" id="card-example">val-drok = blood-word (the language)</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls" id="pre-flip-controls">
+            <button class="ctrl-btn next" onclick="flipCard()">Reveal</button>
+        </div>
+        
+        <div class="controls hidden" id="post-flip-controls">
+            <button class="ctrl-btn wrong" onclick="markCard(false)">✗ Again</button>
+            <button class="ctrl-btn correct" onclick="markCard(true)">✓ Got it</button>
+        </div>
+        
+        <div class="stats">
+            <span id="stat-progress">1 / 20</span>
+            <span id="stat-score">Score: 0</span>
+        </div>
+    </div>
+    
+    <!-- Compound Builder Mode -->
+    <div id="build-mode" class="builder-area">
+        <div class="target-meaning">
+            <div class="label">Build the Valdrok word for:</div>
+            <div class="english" id="build-target">lord's hall</div>
+        </div>
+        
+        <div class="build-zone" id="build-zone">
+            <span class="placeholder">Tap roots below to build</span>
+        </div>
+        
+        <div class="root-bank" id="root-bank">
+            <div class="root-chip" onclick="addRoot('tor')">tor</div>
+            <div class="root-chip" onclick="addRoot('hal')">hal</div>
+            <div class="root-chip" onclick="addRoot('val')">val</div>
+            <div class="root-chip" onclick="addRoot('mor')">mor</div>
+            <div class="root-chip" onclick="addRoot('kin')">kin</div>
+        </div>
+        
+        <div class="controls">
+            <button class="ctrl-btn" onclick="clearBuild()">Clear</button>
+            <button class="ctrl-btn next" onclick="checkBuild()">Check</button>
+        </div>
+    </div>
+    
+    <!-- Reference Mode -->
+    <div id="reference-mode" class="reference-area">
+        <div class="tier-section">
+            <div class="tier-header">🔥 TIER 1 - Core Roots (Use Constantly)</div>
+            <div class="word-list" id="tier1-list"></div>
+        </div>
+        
+        <div class="tier-section">
+            <div class="tier-header">⚔️ TIER 2 - Common Roots</div>
+            <div class="word-list" id="tier2-list"></div>
+        </div>
+    </div>
+    
+    <div class="incantation">
+        <div class="text">"Val-drok zok-strek" — Blood-word knowledge-path</div>
+    </div>
+    
+    <script>
+        // ============================================
+        // VALDROK VOCABULARY DATABASE
+        // ============================================
+        
+        const TIER1_ROOTS = [
+            { valdrok: 'val', english: 'blood', literal: 'The essence of life and lineage', example: 'val-drok = blood-word (the language)', tier: 1 },
+            { valdrok: 'tor', english: 'lord/master', literal: 'One who rules or commands', example: 'tor-hal = lord-hall (castle)', tier: 1 },
+            { valdrok: 'mor', english: 'heart', literal: 'Center of emotion and courage', example: 'val-mor = blood-heart (ritual)', tier: 1 },
+            { valdrok: 'kin', english: 'family/bloodline', literal: 'Those bound by blood', example: 'kin-mol = family-bind (oath)', tier: 1 },
+            { valdrok: 'hal', english: 'hall/house', literal: 'Dwelling place, seat of power', example: 'hal-an = hall-lives (welcome)', tier: 1 },
+            { valdrok: 'fyr', english: 'fire', literal: 'Flame, heat, passion', example: 'fyr-an = fire-lives (blessing)', tier: 1 },
+            { valdrok: 'zur', english: 'water', literal: 'Life-giving liquid', example: 'zur-far = water-travel (swim)', tier: 1 },
+            { valdrok: 'kel', english: 'stone/rock', literal: 'Solid, enduring, foundation', example: 'kel-stul = stone-wall', tier: 1 },
+            { valdrok: 'nok', english: 'death/dead', literal: 'The end, the crossing', example: 'nok-thol = death-threshold', tier: 1 },
+            { valdrok: 'an', english: 'life/living', literal: 'To be alive, to exist', example: 'verb suffix: grul-an = eating', tier: 1 },
+            { valdrok: 'mol', english: 'bind/knot', literal: 'To tie, connect, make oath', example: 'val-mol = blood-bind (sacred oath)', tier: 1 },
+            { valdrok: 'thrak', english: 'take', literal: 'To seize, grasp, claim', example: 'thrak-kys = taken-kiss (stolen kiss)', tier: 1 },
+            { valdrok: 'grul', english: 'eat/devour', literal: 'To consume', example: 'grul-an = eating', tier: 1 },
+            { valdrok: 'strik', english: 'strike/hit', literal: 'To attack, to beat', example: 'strik-folk = strike-person (soldier)', tier: 1 },
+            { valdrok: 'rath', english: 'full/complete', literal: 'Whole, finished, total', example: 'rath-lun = full-moon', tier: 1 },
+            { valdrok: 'sakr', english: 'sacred/holy', literal: 'Set apart, divine', example: 'sakr-kel = sacred-stone (altar)', tier: 1 },
+            { valdrok: 'spyr', english: 'spiral', literal: 'Sacred symbol of Vale', example: 'spyr-trap = spiral-stairs', tier: 1 },
+            { valdrok: 'drok', english: 'word/speech', literal: 'Language, utterance', example: 'val-drok = blood-word', tier: 1 },
+            { valdrok: 'zok', english: 'knowledge/lore', literal: 'Wisdom, understanding', example: 'ver-zok = true-knowledge', tier: 1 },
+            { valdrok: 'shan', english: 'mark/sign', literal: 'Symbol, indicator', example: 'shan-mol = mark-bind (pattern)', tier: 1 }
+        ];
+        
+        const TIER2_ROOTS = [
+            { valdrok: 'krath', english: 'flesh/meat', literal: 'Body, physical form', example: 'fyr-krath = fire-flesh (cooked meat)', tier: 2 },
+            { valdrok: 'os', english: 'bone', literal: 'Structure, framework', example: 'hul-os = hull-bone (ship rib)', tier: 2 },
+            { valdrok: 'skal', english: 'skin/surface', literal: 'Covering, exterior', example: 'mol-skal = bind-skin (cloth)', tier: 2 },
+            { valdrok: 'thul', english: 'head/mind', literal: 'Thought, intelligence', example: 'thul-an = head-live (to think)', tier: 2 },
+            { valdrok: 'gar', english: 'hand', literal: 'Tool, instrument', example: 'strik-gar = strike-hand (hammer)', tier: 2 },
+            { valdrok: 'folk', english: 'people', literal: 'Persons, individuals', example: 'strik-folk = strike-person (soldier)', tier: 2 },
+            { valdrok: 'thral', english: 'servant/slave', literal: 'One who serves', example: 'thral-krev = servant-chamber', tier: 2 },
+            { valdrok: 'gran', english: 'earth/ground', literal: 'Land, soil', example: 'gran-folk = earth-person (peasant)', tier: 2 },
+            { valdrok: 'vind', english: 'wind/air', literal: 'Breath, atmosphere', example: 'vind-skal = wind-skin (sail)', tier: 2 },
+            { valdrok: 'skar', english: 'ice/cold', literal: 'Frozen, winter', example: 'skar-kalt = ice-cold (freezing)', tier: 2 },
+            { valdrok: 'sol', english: 'sun', literal: 'Daylight, warmth', example: 'sol-groth = sun-rise (sunrise)', tier: 2 },
+            { valdrok: 'lun', english: 'moon', literal: 'Night light, cycles', example: 'rath-lun = full-moon', tier: 2 },
+            { valdrok: 'se', english: 'sea/ocean', literal: 'The waters', example: 'se-hal = sea-hall (ship)', tier: 2 },
+            { valdrok: 'dag', english: 'day', literal: 'Daylight period', example: 'dis-dag = this-day (today)', tier: 2 },
+            { valdrok: 'nit', english: 'night', literal: 'Darkness period', example: 'god-nit = good-night', tier: 2 },
+            { valdrok: 'giv', english: 'give', literal: 'To offer, grant', example: 'drok-giv = word-give (to tell)', tier: 2 },
+            { valdrok: 'kur', english: 'cure/heal', literal: 'To mend, restore', example: 'kur-folk = heal-person (healer)', tier: 2 },
+            { valdrok: 'ban', english: 'curse/harm', literal: 'To damage, afflict', example: 'ban! = damn!', tier: 2 },
+            { valdrok: 'kren', english: 'break/cut', literal: 'To sever, split', example: 'mor-kren = heart-break', tier: 2 },
+            { valdrok: 'slep', english: 'sleep', literal: 'Rest, unconsciousness', example: 'slep-krev = sleep-chamber (bedroom)', tier: 2 },
+            { valdrok: 'vak', english: 'wake', literal: 'To arise, alert', example: 'thav-vak = thaw-wake (spring)', tier: 2 },
+            { valdrok: 'groth', english: 'grow/build', literal: 'To rise, construct', example: 'groth = tower', tier: 2 },
+            { valdrok: 'rot', english: 'decay/rot', literal: 'To fade, deteriorate', example: 'rot-lengsel = decay-longing (to pine)', tier: 2 },
+            { valdrok: 'trans', english: 'change/cross', literal: 'To transform, traverse', example: 'trans-strik = turn-strike (parry)', tier: 2 },
+            { valdrok: 'stron', english: 'endure/strong', literal: 'Strength, resilience', example: 'stron-rath = strong-complete (victory)', tier: 2 },
+            { valdrok: 'mani', english: 'many/multiple', literal: 'Numerous', example: 'mani-mol = many-knot (cluster)', tier: 2 },
+            { valdrok: 'sek', english: 'one/single', literal: 'First, singular', example: 'sek-lov = first-love', tier: 2 },
+            { valdrok: 'lur', english: 'light/bright', literal: 'Illumination, clarity', example: 'lur-ster = bright-star', tier: 2 },
+            { valdrok: 'noth', english: 'dark/shadow', literal: 'Darkness, hidden', example: 'dyp-noth = deep-dark (winterdeep)', tier: 2 },
+            { valdrok: 'ver', english: 'true', literal: 'Truth, authentic', example: 'ver-zok = true-knowledge (wisdom)', tier: 2 },
+            { valdrok: 'oyl', english: 'oil', literal: 'Fat, lubricant', example: 'vald-oyl = whale-oil', tier: 2 },
+            { valdrok: 'hund', english: 'dog', literal: 'Canine', example: 'hal-hund = hall-dog', tier: 2 },
+            { valdrok: 'ox', english: 'ox/cattle', literal: 'Bovine', example: 'tor-ox = lord-ox (bull)', tier: 2 },
+            { valdrok: 'shep', english: 'sheep', literal: 'Ovine', example: 'shep-ling = sheep-young (lamb)', tier: 2 },
+            { valdrok: 'fisk', english: 'fish', literal: 'Marine creature', example: 'sal-fisk = salt-fish', tier: 2 },
+            { valdrok: 'vald', english: 'whale', literal: 'Great sea beast', example: 'vald-oyl = whale-oil', tier: 2 },
+            { valdrok: 'iron', english: 'iron/metal', literal: 'Hard metal', example: 'stron-iron = strong-iron (steel)', tier: 2 },
+            { valdrok: 'gold', english: 'gold', literal: 'Precious metal', example: 'gold-mor = gold-heart (treasure)', tier: 2 },
+            { valdrok: 'rop', english: 'rope/cord', literal: 'Binding material', example: 'harp-rop = harpoon-rope', tier: 2 },
+            { valdrok: 'nyf', english: 'knife/blade', literal: 'Cutting tool', example: 'sakr-nyf = sacred-knife', tier: 2 },
+            { valdrok: 'nav', english: 'navigate/steer', literal: 'To guide a course', example: 'ster-nav = star-steering', tier: 2 },
+            { valdrok: 'havn', english: 'harbor/haven', literal: 'Safe port', example: 'havn-nav = harbor-steering (piloting)', tier: 2 },
+            { valdrok: 'kust', english: 'coast/shore', literal: 'Land-sea boundary', example: 'kust-nav = coast-steering', tier: 2 },
+            { valdrok: 'lov', english: 'love', literal: 'Deep affection', example: 'ek lov thu = I love you', tier: 2 },
+            { valdrok: 'kys', english: 'kiss', literal: 'Lip touch', example: 'fyr-kys = fire-kiss (passionate)', tier: 2 },
+            { valdrok: 'kær', english: 'dear/beloved', literal: 'Endearment', example: 'kær-ling = dear-small (darling)', tier: 2 },
+            { valdrok: 'søt', english: 'sweet', literal: 'Tender, gentle', example: 'søt-mor = sweet-heart', tier: 2 },
+            { valdrok: 'tro', english: 'faithful/loyal', literal: 'Romantic fidelity', example: 'non-tro = not-faithful', tier: 2 },
+            { valdrok: 'skøn', english: 'beautiful', literal: 'Aesthetic beauty', example: 'rath-skøn = full-beautiful (gorgeous)', tier: 2 },
+            { valdrok: 'glad', english: 'joy', literal: 'Happiness', example: 'glad-drok = joy-word (laugh)', tier: 2 }
+        ];
+        
+        const COMPOUND_CHALLENGES = [
+            { english: "lord's hall (castle)", answer: ['tor', 'hal'], literal: 'lord-hall' },
+            { english: 'blood oath', answer: ['val', 'mol'], literal: 'blood-bind' },
+            { english: 'sacred stone (altar)', answer: ['sakr', 'kel'], literal: 'sacred-stone' },
+            { english: 'fire blessing', answer: ['fyr', 'an'], literal: 'fire-lives' },
+            { english: 'heart knowledge (intuition)', answer: ['mor', 'zok'], literal: 'heart-knowledge' },
+            { english: 'death threshold', answer: ['nok', 'thol'], literal: 'death-threshold' },
+            { english: 'true knowledge (wisdom)', answer: ['ver', 'zok'], literal: 'true-knowledge' },
+            { english: 'whale oil', answer: ['vald', 'oyl'], literal: 'whale-oil' },
+            { english: 'sea hall (ship)', answer: ['se', 'hal'], literal: 'sea-hall' },
+            { english: 'sweet heart', answer: ['søt', 'mor'], literal: 'sweet-heart' },
+            { english: 'full moon', answer: ['rath', 'lun'], literal: 'full-moon' },
+            { english: 'family bind (oath)', answer: ['kin', 'mol'], literal: 'family-bind' }
+        ];
+        
+        // ============================================
+        // APP STATE
+        // ============================================
+        
+        let currentMode = 'flash';
+        let currentCards = [];
+        let currentIndex = 0;
+        let score = 0;
+        let isFlipped = false;
+        let buildSelection = [];
+        let currentChallenge = null;
+        
+        // ============================================
+        // MODE SWITCHING
+        // ============================================
+        
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // Update button states
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.mode-btn').classList.add('active');
+            
+            // Hide all areas
+            document.getElementById('flash-mode').classList.add('hidden');
+            document.getElementById('build-mode').classList.remove('active');
+            document.getElementById('reference-mode').classList.remove('active');
+            
+            // Show selected area
+            if (mode === 'flash' || mode === 'daily') {
+                document.getElementById('flash-mode').classList.remove('hidden');
+                initFlashcards(mode === 'daily' ? 10 : 20);
+            } else if (mode === 'build') {
+                document.getElementById('build-mode').classList.add('active');
+                initBuildMode();
+            } else if (mode === 'reference') {
+                document.getElementById('reference-mode').classList.add('active');
+                initReference();
+            }
+        }
+        
+        // ============================================
+        // FLASHCARD MODE
+        // ============================================
+        
+        function initFlashcards(count = 20) {
+            // Combine and shuffle
+            let allCards = [...TIER1_ROOTS, ...TIER2_ROOTS];
+            currentCards = shuffleArray(allCards).slice(0, count);
+            currentIndex = 0;
+            score = 0;
+            showCard();
+        }
+        
+        function showCard() {
+            if (currentIndex >= currentCards.length) {
+                showComplete();
+                return;
+            }
+            
+            const card = currentCards[currentIndex];
+            document.getElementById('card-word').textContent = card.valdrok;
+            document.getElementById('card-meaning').textContent = card.english;
+            document.getElementById('card-literal').textContent = card.literal;
+            document.getElementById('card-example').textContent = card.example;
+            document.getElementById('tier-badge').textContent = 'TIER ' + card.tier;
+            
+            // Reset flip state
+            document.getElementById('flashcard').classList.remove('flipped');
+            document.getElementById('pre-flip-controls').classList.remove('hidden');
+            document.getElementById('post-flip-controls').classList.add('hidden');
+            isFlipped = false;
+            
+            // Update progress
+            const progress = ((currentIndex) / currentCards.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            document.getElementById('stat-progress').textContent = (currentIndex + 1) + ' / ' + currentCards.length;
+            document.getElementById('stat-score').textContent = 'Score: ' + score;
+        }
+        
+        function flipCard() {
+            if (isFlipped) return;
+            
+            document.getElementById('flashcard').classList.add('flipped');
+            document.getElementById('pre-flip-controls').classList.add('hidden');
+            document.getElementById('post-flip-controls').classList.remove('hidden');
+            isFlipped = true;
+        }
+        
+        function markCard(correct) {
+            if (correct) score++;
+            currentIndex++;
+            showCard();
+        }
+        
+        function showComplete() {
+            const pct = Math.round((score / currentCards.length) * 100);
+            document.getElementById('flashcard').innerHTML = `
+                <div class="word">Stron-rath!</div>
+                <div class="answer" style="display:block">
+                    <div class="meaning">${score} / ${currentCards.length}</div>
+                    <div class="literal">${pct}% mastery</div>
+                    <div class="example" style="margin-top:20px">
+                        ${pct >= 80 ? '🔥 Val-an! Ready for Tier 2!' : '⚒️ Keep forging. Try again.'}
+                    </div>
+                </div>
+            `;
+            document.getElementById('post-flip-controls').classList.add('hidden');
+            document.getElementById('progress').style.width = '100%';
+        }
+        
+        // ============================================
+        // COMPOUND BUILDER MODE
+        // ============================================
+        
+        function initBuildMode() {
+            buildSelection = [];
+            currentChallenge = COMPOUND_CHALLENGES[Math.floor(Math.random() * COMPOUND_CHALLENGES.length)];
+            document.getElementById('build-target').textContent = currentChallenge.english;
+            
+            // Create root bank with answer + distractors
+            const distractors = ['val', 'mor', 'kin', 'fyr', 'zur', 'nok', 'an', 'strik', 'rath', 'drok'];
+            let roots = [...currentChallenge.answer];
+            
+            while (roots.length < 5) {
+                const d = distractors[Math.floor(Math.random() * distractors.length)];
+                if (!roots.includes(d)) roots.push(d);
+            }
+            
+            roots = shuffleArray(roots);
+            
+            document.getElementById('root-bank').innerHTML = roots.map(r => 
+                `<div class="root-chip" onclick="addRoot('${r}')">${r}</div>`
+            ).join('');
+            
+            updateBuildZone();
+        }
+        
+        function addRoot(root) {
+            if (buildSelection.length < 3) {
+                buildSelection.push(root);
+                updateBuildZone();
+            }
+        }
+        
+        function clearBuild() {
+            buildSelection = [];
+            updateBuildZone();
+        }
+        
+        function updateBuildZone() {
+            const zone = document.getElementById('build-zone');
+            if (buildSelection.length === 0) {
+                zone.innerHTML = '<span class="placeholder">Tap roots below to build</span>';
+            } else {
+                zone.innerHTML = buildSelection.map((r, i) => 
+                    `<span class="built-root">${r}</span>${i < buildSelection.length - 1 ? '<span class="separator">-</span>' : ''}`
+                ).join('');
+            }
+        }
+        
+        function checkBuild() {
+            const correct = JSON.stringify(buildSelection) === JSON.stringify(currentChallenge.answer);
+            
+            if (correct) {
+                alert(`✓ Stron-rath!\n\n${buildSelection.join('-')} = ${currentChallenge.literal}\n\n"${currentChallenge.english}"`);
+            } else {
+                alert(`✗ Try again.\n\nCorrect: ${currentChallenge.answer.join('-')}\n(${currentChallenge.literal})`);
+            }
+            
+            initBuildMode();
+        }
+        
+        // ============================================
+        // REFERENCE MODE
+        // ============================================
+        
+        function initReference() {
+            document.getElementById('tier1-list').innerHTML = TIER1_ROOTS.map(w => `
+                <div class="word-item">
+                    <div class="valdrok">${w.valdrok}</div>
+                    <div class="english">${w.english}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('tier2-list').innerHTML = TIER2_ROOTS.map(w => `
+                <div class="word-item">
+                    <div class="valdrok">${w.valdrok}</div>
+                    <div class="english">${w.english}</div>
+                </div>
+            `).join('');
+        }
+        
+        // ============================================
+        // UTILITIES
+        // ============================================
+        
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+        
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            initFlashcards(20);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valdrok Giblets - Pac-Man of Castle Vale</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0d0d0f; color: white; font-family: monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useEffect, useRef, useState } = React;
+
+function ValdrokPacman() {
+  const canvasRef = useRef(null);
+  const [gameState, setGameState] = useState('menu'); // menu, playing, gameOver, won
+  const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(3);
+  const [level, setLevel] = useState(1);
+  const [isMobile, setIsMobile] = useState(false);
+  const [powerMode, setPowerMode] = useState(false);
+  const [wraithCount, setWraithCount] = useState(4);
+  const [newWraithName, setNewWraithName] = useState(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const touchDirectionRef = useRef(null);
+  const lastTouchTimeRef = useRef(0);
+  
+  // Detect mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
+  const gameRef = useRef({
+    player: { x: 1, y: 1, direction: 'right', nextDirection: null, speed: 0.1 },
+    wraiths: [],
+    giblets: [],
+    powerUps: [],
+    keys: {},
+    maze: null,
+    cellSize: 20,
+    powerMode: false,
+    powerModeTimer: 0,
+    animationFrame: 0,
+    nextWraithIndex: 0,
+    wraithPool: [
+      { name: 'Cassius', color: '#ff9900', scatterTarget: { x: 14, y: 2 } },
+      { name: 'Aldric', color: '#00ff99', scatterTarget: { x: 2, y: 15 } },
+      { name: 'Theron', color: '#9900cc', scatterTarget: { x: 25, y: 15 } },
+      { name: 'Garrick', color: '#cc0099', scatterTarget: { x: 14, y: 29 } },
+      { name: 'Maelis', color: '#00ccff', scatterTarget: { x: 7, y: 7 } },
+      { name: 'Veryn', color: '#ffcc00', scatterTarget: { x: 20, y: 7 } },
+      { name: 'Elias', color: '#cc00ff', scatterTarget: { x: 7, y: 23 } },
+      { name: 'Hadrian', color: '#00ffcc', scatterTarget: { x: 20, y: 23 } }
+    ]
+  });
+
+  // Calculate difficulty modifiers based on level
+  const getDifficulty = (level) => {
+    const difficultyTier = Math.floor((level - 1) / 3); // 0 for levels 1-3, 1 for 4-6, etc.
+    
+    return {
+      playerSpeed: 0.05, // Keep player speed constant
+      wraithSpeed: 0.04 + (difficultyTier * 0.01), // Increases: 0.04, 0.05, 0.06, 0.07...
+      wraithPowerSpeed: 0.03 + (difficultyTier * 0.005), // Increases slower when frightened
+      powerDuration: Math.max(240, 480 - (difficultyTier * 60)), // Decreases: 480, 420, 360, 300, 240 (min 4 seconds)
+      modeSwitch: Math.max(180, 300 - (difficultyTier * 30)) // Wraiths switch modes faster
+    };
+  };
+
+  // Classic Pacman maze layouts (1 = wall, 0 = path, 2 = power pellet location)
+  const getMazeForLevel = (level) => {
+    const mazes = [
+      // Maze 1 - Classic
+      [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1],
+        [1,2,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,2,1],
+        [1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1],
+        [1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1],
+        [1,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1],
+        [1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1],
+        [1,1,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1,1],
+        [1,1,1,1,1,1,0,1,1,0,1,1,1,0,0,1,1,1,0,1,1,0,1,1,1,1,1,1],
+        [1,1,1,1,1,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,1,1,1],
+        [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+        [1,1,1,1,1,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,1,1,1],
+        [1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+        [1,1,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1,1],
+        [1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+        [1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1],
+        [1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1],
+        [1,2,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,2,1],
+        [1,1,1,0,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,0,1,1,1],
+        [1,1,1,0,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,0,1,1,1],
+        [1,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1],
+        [1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+      ],
+      
+      // Maze 2 - More open
+      [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,1,0,1],
+        [1,2,1,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,1,2,1],
+        [1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1],
+        [1,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,0,0,0,0,0,0,1],
+        [1,0,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,0,1],
+        [1,0,1,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1,1,1,0,1],
+        [1,0,0,0,0,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,0,0,0,1],
+        [1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,1],
+        [1,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1],
+        [1,1,1,1,1,0,1,1,0,1,1,1,0,0,0,1,1,1,0,1,1,0,1,1,1,1,1],
+        [1,1,1,1,1,0,1,1,0,1,0,0,0,0,0,0,0,1,0,1,1,0,1,1,1,1,1],
+        [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+        [1,1,1,1,1,0,1,1,0,1,0,0,0,0,0,0,0,1,0,1,1,0,1,1,1,1,1],
+        [1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1],
+        [1,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,0,1],
+        [1,0,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,0,1,1,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1],
+        [1,2,1,1,1,1,1,1,0,1,1,0,0,0,0,0,0,1,1,0,1,1,1,1,1,2,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1],
+        [1,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,1],
+        [1,0,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+      ],
+      
+      // Maze 3 - Corridors
+      [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1],
+        [1,2,1,1,1,1,0,0,0,0,1,1,0,1,1,0,1,1,0,0,0,0,1,1,1,1,2,1],
+        [1,0,1,1,1,1,0,1,1,0,1,1,0,0,0,0,1,1,0,1,1,0,1,1,1,1,0,1],
+        [1,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1],
+        [1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1],
+        [1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1],
+        [1,1,1,1,0,1,1,0,1,1,1,1,0,0,0,1,1,1,1,0,1,1,0,1,1,1,1,1],
+        [1,1,1,1,0,1,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,1,0,1,1,1,1,1],
+        [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+        [1,1,1,1,0,1,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,1,0,1,1,1,1,1],
+        [1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1],
+        [1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1],
+        [1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,1,1,1,0,1],
+        [1,0,1,1,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,1,1,1,1,0,1,1,0,1,1,1,1,0,0,0,0,0,0,0,1],
+        [1,2,1,1,1,1,1,0,1,1,1,1,0,0,0,0,1,1,1,1,0,1,1,1,1,1,2,1],
+        [1,0,1,1,1,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,1,1,1,1,0,1,1,0,1,1,1,1,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1],
+        [1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+      ]
+    ];
+    
+    // Cycle through mazes
+    return mazes[(level - 1) % mazes.length];
+  };
+  
+  const createMaze = () => {
+    return getMazeForLevel(level);
+  };
+
+  // Initialize game
+  const initGame = () => {
+    const game = gameRef.current;
+    const maze = createMaze();
+    const difficulty = getDifficulty(level);
+    
+    game.maze = maze;
+    game.difficulty = difficulty;
+    game.nextWraithIndex = 0; // Reset wraith spawn index
+    
+    // Place giblets (dots) and power-ups
+    game.giblets = [];
+    game.powerUps = [];
+    
+    for (let y = 0; y < maze.length; y++) {
+      for (let x = 0; x < maze[y].length; x++) {
+        if (maze[y][x] === 0) {
+          game.giblets.push({ x, y });
+        } else if (maze[y][x] === 2) {
+          game.powerUps.push({ x, y });
+          maze[y][x] = 0; // Make it walkable
+        }
+      }
+    }
+    
+    // Initialize player
+    game.player = { 
+      x: 14, 
+      y: 23, 
+      direction: 'right', 
+      nextDirection: null,
+      speed: difficulty.playerSpeed,
+      mouthOpen: 0
+    };
+    
+    // Initialize wraiths
+    game.wraiths = [
+      { 
+        name: 'Lysander', 
+        x: 12, 
+        y: 11, 
+        direction: 'up', 
+        color: '#9900ff',
+        mode: 'scatter',
+        scatterTarget: { x: 2, y: 2 }
+      },
+      { 
+        name: 'Torvin', 
+        x: 14, 
+        y: 11, 
+        direction: 'down', 
+        color: '#ff0066',
+        mode: 'scatter',
+        scatterTarget: { x: 25, y: 2 }
+      },
+      { 
+        name: 'Rowaan', 
+        x: 13, 
+        y: 13, 
+        direction: 'left', 
+        color: '#00ffaa',
+        mode: 'scatter',
+        scatterTarget: { x: 2, y: 29 }
+      },
+      { 
+        name: 'Elrick', 
+        x: 15, 
+        y: 13, 
+        direction: 'right', 
+        color: '#ffaa00',
+        mode: 'scatter',
+        scatterTarget: { x: 25, y: 29 }
+      }
+    ];
+    
+    game.powerMode = false;
+    game.powerModeTimer = 0;
+    game.animationFrame = 0;
+  };
+
+  const startGame = () => {
+    initGame();
+    touchDirectionRef.current = null;
+    lastTouchTimeRef.current = 0;
+    setGameState('playing');
+    setScore(0);
+    setLives(3);
+    setLevel(1);
+    setPowerMode(false);
+    setWraithCount(4);
+    setIsPaused(false);
+    setNewWraithName(null);
+  };
+
+  const nextLevel = () => {
+    const newLevel = level + 1;
+    setLevel(newLevel);
+    // Reinitialize game state
+    touchDirectionRef.current = null;
+    lastTouchTimeRef.current = 0;
+    setPowerMode(false);
+    setWraithCount(4); // Reset to starting 4 wraiths
+    setIsPaused(false);
+    setNewWraithName(null);
+    setGameState('playing');
+  };
+
+  const spawnWraith = (game) => {
+    if (game.nextWraithIndex >= game.wraithPool.length) {
+      // Already spawned all available wraiths
+      return;
+    }
+    
+    const wraithData = game.wraithPool[game.nextWraithIndex];
+    const newWraith = {
+      name: wraithData.name,
+      x: 14,
+      y: 11,
+      direction: 'up',
+      color: wraithData.color,
+      mode: 'chase', // New wraiths start in chase mode
+      scatterTarget: wraithData.scatterTarget
+    };
+    
+    game.wraiths.push(newWraith);
+    game.nextWraithIndex++;
+    setWraithCount(game.wraiths.length);
+    
+    // Pause and show notification
+    setIsPaused(true);
+    setNewWraithName(wraithData.name);
+    setTimeout(() => {
+      setNewWraithName(null);
+      setIsPaused(false);
+    }, 2000); // Pause for 2 seconds
+  };
+
+  const resetGame = () => {
+    touchDirectionRef.current = null;
+    setIsPaused(false);
+    setNewWraithName(null);
+    setGameState('menu');
+  };
+
+  const handleDirectionPress = (direction) => {
+    const now = Date.now();
+    // Debounce - only allow one touch every 50ms
+    if (now - lastTouchTimeRef.current < 50) return;
+    
+    lastTouchTimeRef.current = now;
+    touchDirectionRef.current = direction;
+  };
+
+  const JoystickButton = ({ direction, label, style }) => {
+    const [active, setActive] = React.useState(false);
+    
+    return (
+      <div
+        onTouchStart={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setActive(true);
+          handleDirectionPress(direction);
+        }}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setActive(false);
+        }}
+        onTouchCancel={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setActive(false);
+        }}
+        style={{
+          width: '60px',
+          height: '60px',
+          backgroundColor: active ? 'rgba(153, 0, 255, 0.8)' : 'rgba(153, 0, 255, 0.4)',
+          border: '2px solid #9900ff',
+          borderRadius: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '1.5rem',
+          color: active ? '#ffff00' : '#0ff',
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          WebkitTouchCallout: 'none',
+          touchAction: 'none',
+          transition: 'all 0.1s',
+          ...style
+        }}
+      >
+        {label}
+      </div>
+    );
+  };
+
+  // Check if position is valid
+  const isValidMove = (x, y, maze) => {
+    const gridX = Math.round(x);
+    const gridY = Math.round(y);
+    if (gridY < 0 || gridY >= maze.length || gridX < 0 || gridX >= maze[0].length) {
+      return false;
+    }
+    return maze[gridY][gridX] !== 1;
+  };
+
+  // Get opposite direction
+  const oppositeDirection = (dir) => {
+    const opposites = { up: 'down', down: 'up', left: 'right', right: 'left' };
+    return opposites[dir];
+  };
+
+  // Calculate distance between two points
+  const distance = (x1, y1, x2, y2) => {
+    return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+  };
+
+  // Get valid directions from current position
+  const getValidDirections = (x, y, maze, currentDir) => {
+    const gridX = Math.round(x);
+    const gridY = Math.round(y);
+    const directions = [];
+    
+    if (isValidMove(gridX, gridY - 1, maze) && currentDir !== 'down') directions.push('up');
+    if (isValidMove(gridX, gridY + 1, maze) && currentDir !== 'up') directions.push('down');
+    if (isValidMove(gridX - 1, gridY, maze) && currentDir !== 'right') directions.push('left');
+    if (isValidMove(gridX + 1, gridY, maze) && currentDir !== 'left') directions.push('right');
+    
+    return directions;
+  };
+
+  // Wraith AI
+  const updateWraith = (wraith, player, maze, powerMode, difficulty) => {
+    const gridX = Math.round(wraith.x);
+    const gridY = Math.round(wraith.y);
+    
+    // Check if wraith is at intersection
+    const isAtIntersection = (
+      Math.abs(wraith.x - gridX) < 0.1 && 
+      Math.abs(wraith.y - gridY) < 0.1
+    );
+    
+    if (isAtIntersection) {
+      const validDirs = getValidDirections(gridX, gridY, maze, wraith.direction);
+      
+      if (validDirs.length > 0) {
+        let targetX, targetY;
+        
+        if (powerMode) {
+          // Run away from player
+          targetX = gridX + (gridX - Math.round(player.x)) * 2;
+          targetY = gridY + (gridY - Math.round(player.y)) * 2;
+        } else if (wraith.mode === 'chase') {
+          // Chase player
+          targetX = Math.round(player.x);
+          targetY = Math.round(player.y);
+        } else {
+          // Scatter to corner
+          targetX = wraith.scatterTarget.x;
+          targetY = wraith.scatterTarget.y;
+        }
+        
+        // Pick direction closest to target
+        let bestDir = validDirs[0];
+        let bestDist = Infinity;
+        
+        for (const dir of validDirs) {
+          let testX = gridX;
+          let testY = gridY;
+          if (dir === 'up') testY--;
+          if (dir === 'down') testY++;
+          if (dir === 'left') testX--;
+          if (dir === 'right') testX++;
+          
+          const dist = distance(testX, testY, targetX, targetY);
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestDir = dir;
+          }
+        }
+        
+        wraith.direction = bestDir;
+      }
+    }
+    
+    // Move wraith with difficulty-based speed
+    const speed = powerMode ? difficulty.wraithPowerSpeed : difficulty.wraithSpeed;
+    if (wraith.direction === 'up') wraith.y -= speed;
+    if (wraith.direction === 'down') wraith.y += speed;
+    if (wraith.direction === 'left') wraith.x -= speed;
+    if (wraith.direction === 'right') wraith.x += speed;
+    
+    // Wrap around edges
+    if (wraith.x < 0) wraith.x = maze[0].length - 1;
+    if (wraith.x >= maze[0].length) wraith.x = 0;
+  };
+
+  // Game loop
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+    
+    const game = gameRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
+    let animationId;
+    
+    const gameLoop = () => {
+      // Only update game state if not paused
+      if (!isPaused) {
+        game.animationFrame++;
+        
+        // Apply touch direction if set - don't clear it, let it persist
+        if (touchDirectionRef.current && game.player.nextDirection !== touchDirectionRef.current) {
+          game.player.nextDirection = touchDirectionRef.current;
+        }
+        
+        // Update player
+        const player = game.player;
+      const gridX = Math.round(player.x);
+      const gridY = Math.round(player.y);
+      
+      // Check if aligned to grid (more forgiving threshold)
+      const isAligned = (
+        Math.abs(player.x - gridX) < 0.15 && 
+        Math.abs(player.y - gridY) < 0.15
+      );
+      
+      // Try to change direction if at intersection
+      if (isAligned && player.nextDirection) {
+        let testX = gridX;
+        let testY = gridY;
+        if (player.nextDirection === 'up') testY--;
+        if (player.nextDirection === 'down') testY++;
+        if (player.nextDirection === 'left') testX--;
+        if (player.nextDirection === 'right') testX++;
+        
+        if (isValidMove(testX, testY, game.maze)) {
+          player.direction = player.nextDirection;
+          player.nextDirection = null;
+          // Clear touch direction after successful direction change
+          touchDirectionRef.current = null;
+          // Snap to grid when changing direction
+          player.x = gridX;
+          player.y = gridY;
+        }
+      }
+      
+      // Move player
+      let newX = player.x;
+      let newY = player.y;
+      
+      if (player.direction === 'up') newY -= player.speed;
+      if (player.direction === 'down') newY += player.speed;
+      if (player.direction === 'left') newX -= player.speed;
+      if (player.direction === 'right') newX += player.speed;
+      
+      // Check if move is valid - use rounded positions for wall checking
+      const newGridX = Math.round(newX);
+      const newGridY = Math.round(newY);
+      
+      if (isValidMove(newGridX, newGridY, game.maze)) {
+        player.x = newX;
+        player.y = newY;
+      } else {
+        // If hit wall, snap to grid and stop
+        player.x = gridX;
+        player.y = gridY;
+      }
+      
+      // Wrap around edges
+      if (player.x < 0) player.x = game.maze[0].length - 1;
+      if (player.x >= game.maze[0].length) player.x = 0;
+      
+      // Animate mouth
+      player.mouthOpen = (Math.sin(game.animationFrame * 0.2) + 1) / 2;
+      
+      // Collect giblets
+      const playerGridX = Math.round(player.x);
+      const playerGridY = Math.round(player.y);
+      
+      const gibletIndex = game.giblets.findIndex(
+        g => g.x === playerGridX && g.y === playerGridY
+      );
+      if (gibletIndex !== -1) {
+        game.giblets.splice(gibletIndex, 1);
+        setScore(s => s + 10);
+      }
+      
+      // Collect power-ups
+      const powerUpIndex = game.powerUps.findIndex(
+        p => p.x === playerGridX && p.y === playerGridY
+      );
+      if (powerUpIndex !== -1) {
+        game.powerUps.splice(powerUpIndex, 1);
+        game.powerMode = true;
+        game.powerModeTimer = game.difficulty.powerDuration; // Use difficulty-based duration
+        setPowerMode(true);
+        setScore(s => s + 50);
+        
+        // SPAWN NEW WRAITH - Another ancestor emerges
+        spawnWraith(game);
+      }
+      
+      // Update power mode timer
+      if (game.powerMode) {
+        game.powerModeTimer--;
+        if (game.powerModeTimer <= 0) {
+          game.powerMode = false;
+          setPowerMode(false);
+        }
+      }
+      
+      // Update wraiths
+      game.wraiths.forEach(wraith => {
+        updateWraith(wraith, player, game.maze, game.powerMode, game.difficulty); // Pass difficulty
+        
+        // Check collision with player
+        const dist = distance(player.x, player.y, wraith.x, wraith.y);
+        if (dist < 0.5) {
+          if (game.powerMode) {
+            // Eat wraith
+            wraith.x = 14;
+            wraith.y = 11;
+            wraith.mode = 'scatter';
+            setScore(s => s + 200);
+          } else {
+            // Lose life
+            setLives(l => {
+              const newLives = l - 1;
+              if (newLives <= 0) {
+                setGameState('gameOver');
+              } else {
+                // Reset positions
+                player.x = 14;
+                player.y = 23;
+                player.direction = 'right';
+                game.wraiths.forEach(w => {
+                  w.x = w.name === 'Lysander' ? 12 : w.name === 'Torvin' ? 14 : w.name === 'Rowaan' ? 13 : 15;
+                  w.y = w.name === 'Rowaan' || w.name === 'Elrick' ? 13 : 11;
+                });
+              }
+              return newLives;
+            });
+          }
+        }
+      });
+      
+      // Switch wraith modes periodically (based on difficulty)
+      if (game.animationFrame % game.difficulty.modeSwitch === 0) {
+        game.wraiths.forEach(w => {
+          w.mode = w.mode === 'scatter' ? 'chase' : 'scatter';
+        });
+      }
+      
+      // Check win condition
+      if (game.giblets.length === 0) {
+        setGameState('won');
+      }
+      
+      } // End of !isPaused check - updates only happen when not paused
+      
+      // Render (always happens, even when paused)
+      const player = game.player;
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw maze
+      const cellSize = game.cellSize;
+      ctx.strokeStyle = '#9900ff';
+      ctx.lineWidth = 2;
+      
+      for (let y = 0; y < game.maze.length; y++) {
+        for (let x = 0; x < game.maze[y].length; x++) {
+          if (game.maze[y][x] === 1) {
+            ctx.fillStyle = '#2a0a2a';
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+            ctx.strokeStyle = '#4a1a4a';
+            ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+          }
+        }
+      }
+      
+      // Draw giblets
+      game.giblets.forEach(giblet => {
+        ctx.fillStyle = '#ff0066';
+        ctx.beginPath();
+        ctx.arc(
+          giblet.x * cellSize + cellSize / 2,
+          giblet.y * cellSize + cellSize / 2,
+          2,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+      });
+      
+      // Draw power-ups (salt crystals)
+      game.powerUps.forEach(powerUp => {
+        const pulse = Math.sin(game.animationFrame * 0.1) * 2 + 6;
+        ctx.fillStyle = '#00ffff';
+        ctx.beginPath();
+        ctx.arc(
+          powerUp.x * cellSize + cellSize / 2,
+          powerUp.y * cellSize + cellSize / 2,
+          pulse,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+      });
+      
+      // Draw player (Pacman style)
+      ctx.save();
+      ctx.translate(
+        player.x * cellSize + cellSize / 2,
+        player.y * cellSize + cellSize / 2
+      );
+      
+      // Rotate based on direction
+      if (player.direction === 'right') ctx.rotate(0);
+      if (player.direction === 'down') ctx.rotate(Math.PI / 2);
+      if (player.direction === 'left') ctx.rotate(Math.PI);
+      if (player.direction === 'up') ctx.rotate(-Math.PI / 2);
+      
+      ctx.fillStyle = '#ffff00';
+      ctx.beginPath();
+      const mouthAngle = player.mouthOpen * 0.5;
+      ctx.arc(0, 0, cellSize / 2 - 2, mouthAngle, Math.PI * 2 - mouthAngle);
+      ctx.lineTo(0, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+      
+      // Draw wraiths
+      game.wraiths.forEach(wraith => {
+        if (game.powerMode) {
+          // Frightened mode - blue and blinking when almost over
+          const blink = game.powerModeTimer < 120 && game.animationFrame % 20 < 10; // Blink last 2 seconds
+          ctx.fillStyle = blink ? '#ffffff' : '#0066ff';
+        } else {
+          ctx.fillStyle = wraith.color;
+        }
+        
+        const wx = wraith.x * cellSize + cellSize / 2;
+        const wy = wraith.y * cellSize + cellSize / 2;
+        
+        // Draw wraith body (ghost shape)
+        ctx.beginPath();
+        ctx.arc(wx, wy - 3, cellSize / 2 - 2, Math.PI, 0, false);
+        ctx.lineTo(wx + cellSize / 2 - 2, wy + cellSize / 2 - 2);
+        ctx.lineTo(wx + 3, wy + 2);
+        ctx.lineTo(wx, wy + cellSize / 2 - 2);
+        ctx.lineTo(wx - 3, wy + 2);
+        ctx.lineTo(wx - cellSize / 2 + 2, wy + cellSize / 2 - 2);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Draw eyes
+        if (!game.powerMode) {
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(wx - 4, wy - 4, 3, 4);
+          ctx.fillRect(wx + 1, wy - 4, 3, 4);
+          ctx.fillStyle = '#000';
+          ctx.fillRect(wx - 3, wy - 3, 2, 2);
+          ctx.fillRect(wx + 2, wy - 3, 2, 2);
+        }
+      });
+      
+      animationId = requestAnimationFrame(gameLoop);
+    };
+    
+    gameLoop();
+    
+    // Keyboard controls
+    const handleKeyDown = (e) => {
+      const key = e.key.toLowerCase();
+      if (key === 'arrowup' || key === 'w') {
+        game.player.nextDirection = 'up';
+        e.preventDefault();
+      }
+      if (key === 'arrowdown' || key === 's') {
+        game.player.nextDirection = 'down';
+        e.preventDefault();
+      }
+      if (key === 'arrowleft' || key === 'a') {
+        game.player.nextDirection = 'left';
+        e.preventDefault();
+      }
+      if (key === 'arrowright' || key === 'd') {
+        game.player.nextDirection = 'right';
+        e.preventDefault();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [gameState, level, isPaused]);
+
+  return (
+    <div style={{
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: '#000',
+      color: '#0ff',
+      fontFamily: 'monospace',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      {gameState === 'menu' && (
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <h1 style={{ fontSize: isMobile ? '2rem' : '3rem', color: '#9900ff', marginBottom: '1rem' }}>
+            VALDROK GIBLETS
+          </h1>
+          <p style={{ fontSize: isMobile ? '1rem' : '1.2rem', marginBottom: '2rem' }}>
+            Collect the giblets. Avoid the wraiths.
+          </p>
+          <div style={{ marginBottom: '2rem', textAlign: 'left', display: 'inline-block', fontSize: isMobile ? '0.9rem' : '1rem' }}>
+            <p><span style={{color: '#9900ff'}}>LYSANDER</span> - The Strategist</p>
+            <p><span style={{color: '#ff0066'}}>TORVIN</span> - The Hunter</p>
+            <p><span style={{color: '#00ffaa'}}>ROWAAN</span> - The Architect</p>
+            <p><span style={{color: '#ffaa00'}}>ELRICK</span> - The Grandfather</p>
+          </div>
+          <div style={{ marginBottom: '2rem', fontSize: isMobile ? '0.9rem' : '1rem' }}>
+            {!isMobile && <p>Arrow Keys or WASD to move</p>}
+            {isMobile && <p>Use on-screen joystick</p>}
+            <p><span style={{color: '#00ffff'}}>Salt Crystals</span> = Power mode</p>
+            <p style={{color: '#ff0066', fontWeight: 'bold'}}>⚠ Each crystal spawns another wraith ⚠</p>
+          </div>
+          <button
+            onClick={startGame}
+            style={{
+              padding: isMobile ? '0.8rem 1.5rem' : '1rem 2rem',
+              fontSize: isMobile ? '1.2rem' : '1.5rem',
+              backgroundColor: '#9900ff',
+              color: '#fff',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'monospace'
+            }}
+          >
+            START
+          </button>
+        </div>
+      )}
+      
+      {gameState === 'playing' && (
+        <div style={{ position: 'relative' }}>
+          <div style={{
+            marginBottom: '1rem',
+            fontSize: isMobile ? '1rem' : '1.5rem',
+            textAlign: 'center'
+          }}>
+            <span>SCORE: {score}</span>
+            <span style={{ marginLeft: '2rem' }}>LIVES: {lives}</span>
+            <span style={{ marginLeft: '2rem' }}>LEVEL: {level}</span>
+            <span style={{ marginLeft: '2rem', color: '#ff0066' }}>
+              WRAITHS: {wraithCount}
+            </span>
+            {Math.floor((level - 1) / 3) > 0 && (
+              <span style={{ marginLeft: '1rem', color: '#ff0066', fontSize: isMobile ? '0.8rem' : '1rem' }}>
+                [+{Math.floor((level - 1) / 3)} DIFFICULTY]
+              </span>
+            )}
+            {powerMode && (
+              <span style={{ 
+                marginLeft: '2rem', 
+                color: '#00ffff',
+                fontWeight: 'bold'
+              }}>
+                ⚡ POWER ⚡
+              </span>
+            )}
+          </div>
+          
+          {/* New Wraith Notification */}
+          {newWraithName && (
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: 'rgba(0, 0, 0, 0.9)',
+              border: '3px solid #ff0066',
+              padding: '20px 40px',
+              borderRadius: '10px',
+              zIndex: 100,
+              textAlign: 'center'
+            }}>
+              <div style={{ 
+                fontSize: isMobile ? '1.5rem' : '2rem', 
+                color: '#ff0066',
+                fontWeight: 'bold',
+                marginBottom: '10px'
+              }}>
+                {newWraithName.toUpperCase()} EMERGES
+              </div>
+              <div style={{ 
+                fontSize: isMobile ? '1rem' : '1.2rem', 
+                color: '#00ffff'
+              }}>
+                Another voice joins the chorus
+              </div>
+            </div>
+          )}
+          
+          <canvas
+            ref={canvasRef}
+            width={560}
+            height={620}
+            style={{ 
+              border: '2px solid #9900ff',
+              maxWidth: '100%',
+              height: 'auto'
+            }}
+          />
+          
+          {/* Mobile Joystick */}
+          {isMobile && (
+            <div style={{
+              position: 'absolute',
+              bottom: '20px',
+              right: '20px',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 60px)',
+              gridTemplateRows: 'repeat(3, 60px)',
+              gap: '5px',
+              zIndex: 10
+            }}>
+              <div></div>
+              <JoystickButton direction="up" label="↑" />
+              <div></div>
+              <JoystickButton direction="left" label="←" />
+              <div style={{
+                width: '60px',
+                height: '60px',
+                border: '2px solid #9900ff',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(0, 255, 255, 0.2)'
+              }}></div>
+              <JoystickButton direction="right" label="→" />
+              <div></div>
+              <JoystickButton direction="down" label="↓" />
+              <div></div>
+            </div>
+          )}
+        </div>
+      )}
+      
+      {gameState === 'gameOver' && (
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <h1 style={{ fontSize: isMobile ? '2rem' : '3rem', color: '#ff0066', marginBottom: '2rem' }}>
+            CONSUMED
+          </h1>
+          <div style={{ fontSize: isMobile ? '1.5rem' : '2rem', marginBottom: '2rem' }}>
+            FINAL SCORE: {score}
+          </div>
+          <button
+            onClick={resetGame}
+            style={{
+              padding: isMobile ? '0.8rem 1.5rem' : '1rem 2rem',
+              fontSize: isMobile ? '1.2rem' : '1.5rem',
+              backgroundColor: '#9900ff',
+              color: '#fff',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'monospace'
+            }}
+          >
+            TRY AGAIN
+          </button>
+        </div>
+      )}
+      
+      {gameState === 'won' && (
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <h1 style={{ fontSize: isMobile ? '2rem' : '3rem', color: '#00ffaa', marginBottom: '2rem' }}>
+            LEVEL {level} COMPLETE
+          </h1>
+          <div style={{ fontSize: isMobile ? '1.5rem' : '2rem', marginBottom: '2rem' }}>
+            SCORE: {score}
+          </div>
+          <button
+            onClick={nextLevel}
+            style={{
+              padding: isMobile ? '0.8rem 1.5rem' : '1rem 2rem',
+              fontSize: isMobile ? '1.2rem' : '1.5rem',
+              backgroundColor: '#9900ff',
+              color: '#fff',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'monospace'
+            }}
+          >
+            LEVEL {level + 1}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<ValdrokPacman />);
+</script>
+</body>
+</html>

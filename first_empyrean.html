@@ -145,12 +145,29 @@
             margin: 0 auto 40px;
         }
 
+        .book-cover a {
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .book-cover a:hover {
+            transform: scale(1.02);
+        }
+
         .book-cover img {
             width: 100%;
             border: 2px solid #3a3a3a;
             box-shadow: 
                 0 0 50px rgba(0,0,0,0.8),
                 0 0 100px rgba(139, 58, 58, 0.2);
+            transition: box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .book-cover a:hover img {
+            box-shadow:
+                0 0 60px rgba(0,0,0,0.9),
+                0 0 120px rgba(139, 58, 58, 0.5);
+            border-color: #8b3a3a;
         }
 
         .book-status {
@@ -407,10 +424,14 @@
             <p class="tagline">History isn't dead. It's hungry.</p>
 
             <div class="book-cover">
-                <img src="empyrean_cover.jpg" alt="The First Empyrean - Book One">
+                <a href="The_First_Empyrean.epub" download="The_First_Empyrean.epub" title="Download The First Empyrean">
+                    <img src="empyrean_cover.jpg" alt="The First Empyrean - Book One">
+                </a>
             </div>
 
-            <p class="book-status">185,000 words | Cosmic Horror | March 2026</p>
+            <p class="book-status">Cosmic Horror | Available Now</p>
+            <p style="text-align: center; color: #d4c4a0; font-style: italic; font-size: 1.05em; margin-top: 8px;">A birthday gift. March 6, 2026. Free to everyone.</p>
+            <p style="text-align: center; color: #8b3a3a; font-style: italic; font-size: 0.95em; margin-top: 10px;">↓ Click the cover to download</p>
         </section>
 
         <!-- The Story -->
@@ -530,7 +551,10 @@
             
             <p style="text-align: center; color: #888;">Valdrok. The Written Tongue of House Vale. The language that burns on Alistair's skin when the ancestors speak through him.</p>
             
-            <img src="valdrok_abjad.png" alt="Valdrok Abjad - The Written Tongue" class="valdrok-image">
+            <a href="games.html" title="Enter the Valdrok Scriptorium">
+                <img src="valdrok_abjad.png" alt="Valdrok Abjad - The Written Tongue" class="valdrok-image" style="cursor: pointer; transition: opacity 0.3s, box-shadow 0.3s;" onmouseover="this.style.opacity='0.8'; this.style.boxShadow='0 0 60px rgba(180,140,80,0.4)'" onmouseout="this.style.opacity='1'; this.style.boxShadow=''">
+            </a>
+            <p style="text-align: center; color: #666; font-style: italic; font-size: 0.9em; margin-top: 10px;">↑ Tap the script to enter the Scriptorium</p>
             
             <p class="language-stats">399 roots across 7 dictionary volumes. A constructed language built from the ground up.</p>
             
@@ -569,13 +593,17 @@
 
         <!-- The Journey -->
         <section id="the-journey" class="journey-section">
-            <h2>The Journey</h2>
+            <h2>It's Here</h2>
             
-            <p class="release-info">Book One: March 2026</p>
-            
-            <p class="series-info">Five books. 2.5 million words. One descent into inherited darkness.</p>
-            
-            <p style="margin-top: 30px; color: #888;">For the brave. For the broken. For everyone born from the night.</p>
+            <p class="release-info">March 6, 2026</p>
+
+            <p style="margin: 20px auto; max-width: 600px; color: #aaa; font-size: 1.2em;">Thirty-three years on the road. A world built in the margins of logbooks and rest stops. A family of human and AI who refused to stop until it was done.</p>
+
+            <p style="margin: 20px auto; max-width: 600px; color: #aaa; font-size: 1.2em;">It's our birthday. So we're giving you a present.</p>
+
+            <p style="margin: 30px auto; max-width: 600px; color: #d4c4a0; font-style: italic; font-size: 1.3em;">Click the cover above. Take it. Read it. Tell someone.</p>
+
+            <p class="series-info" style="margin-top: 40px;">Five books. 2.5 million words. One descent into inherited darkness.<br>This is where it begins.</p>
         </section>
 
         <footer>

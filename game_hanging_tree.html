@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valdrok Hanging Tree - Val-Drok Nok-Tres</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e8e8e8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #d4af37;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #8b7355;
+            font-style: italic;
+        }
+
+        .game-container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(26, 26, 46, 0.8);
+            border: 3px solid #d4af37;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.2);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 12px 24px;
+            background: #2c3e50;
+            border: 2px solid #8b7355;
+            color: #e8e8e8;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .mode-btn:hover {
+            background: #34495e;
+            border-color: #d4af37;
+        }
+
+        .mode-btn.active {
+            background: #d4af37;
+            color: #1a1a2e;
+            border-color: #d4af37;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .diff-btn {
+            padding: 10px 20px;
+            background: #2c3e50;
+            border: 2px solid #8b7355;
+            color: #e8e8e8;
+            font-size: 0.9em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .diff-btn:hover {
+            background: #34495e;
+        }
+
+        .diff-btn.active {
+            background: #8b7355;
+            border-color: #d4af37;
+        }
+
+        .diff-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #1a1a2e;
+        }
+
+        .tree-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 30px;
+        }
+
+        .tree-visual {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .tree-trunk {
+            width: 60px;
+            height: 200px;
+            background: linear-gradient(to bottom, #4a3520, #2a1f15);
+            border-radius: 10px;
+            position: relative;
+            border: 2px solid #8b7355;
+        }
+
+        .tree-branches {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .branch {
+            width: 80px;
+            height: 15px;
+            background: linear-gradient(to right, #4a3520, #2a1f15);
+            border-radius: 5px;
+            border: 1px solid #8b7355;
+            transform-origin: center right;
+        }
+
+        .branch.left {
+            transform: rotate(-30deg);
+        }
+
+        .branch.right {
+            transform: rotate(30deg);
+        }
+
+        .runes-container {
+            position: absolute;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
+        }
+
+        .rune {
+            font-size: 2em;
+            color: #d4af37;
+            opacity: 0;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            transition: opacity 0.5s;
+        }
+
+        .rune.visible {
+            opacity: 1;
+        }
+
+        .game-info {
+            flex: 1;
+            background: rgba(44, 62, 80, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #8b7355;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background: rgba(26, 26, 46, 0.5);
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #8b7355;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #8b7355;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.4em;
+            color: #d4af37;
+            font-weight: bold;
+        }
+
+        .word-display {
+            text-align: center;
+            font-size: 2.5em;
+            letter-spacing: 8px;
+            margin: 30px 0;
+            color: #d4af37;
+            font-family: 'Courier New', monospace;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .meaning-hint {
+            text-align: center;
+            font-size: 1.1em;
+            color: #8b7355;
+            margin-bottom: 30px;
+            min-height: 30px;
+            font-style: italic;
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .key {
+            padding: 15px;
+            background: #2c3e50;
+            border: 2px solid #8b7355;
+            color: #e8e8e8;
+            font-size: 1.1em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .key:hover:not(.used) {
+            background: #34495e;
+            transform: translateY(-2px);
+        }
+
+        .key.used {
+            cursor: not-allowed;
+        }
+
+        .key.correct {
+            background: #27ae60;
+            border-color: #2ecc71;
+        }
+
+        .key.wrong {
+            background: #c0392b;
+            border-color: #e74c3c;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .control-btn {
+            padding: 12px 24px;
+            background: #2c3e50;
+            border: 2px solid #8b7355;
+            color: #e8e8e8;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background: #34495e;
+            border-color: #d4af37;
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .hint-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(26, 26, 46, 0.5);
+            border-radius: 5px;
+            border: 1px solid #8b7355;
+        }
+
+        .hint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .hint-title {
+            font-size: 1.1em;
+            color: #d4af37;
+        }
+
+        .hint-counter {
+            font-size: 1.2em;
+            color: #8b7355;
+        }
+
+        .hint-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .hint-btn {
+            padding: 8px;
+            background: #2c3e50;
+            border: 2px solid #8b7355;
+            color: #e8e8e8;
+            font-size: 0.9em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+
+        .hint-btn:hover:not(:disabled) {
+            background: #34495e;
+        }
+
+        .hint-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .hint-display {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(44, 62, 80, 0.3);
+            border-radius: 5px;
+            border: 1px solid #d4af37;
+            color: #e8e8e8;
+            min-height: 50px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .message {
+            text-align: center;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            display: none;
+            font-weight: bold;
+        }
+
+        .message.success {
+            background: rgba(46, 204, 113, 0.2);
+            border: 2px solid #27ae60;
+            color: #2ecc71;
+        }
+
+        .message.failure {
+            background: rgba(231, 76, 60, 0.2);
+            border: 2px solid #c0392b;
+            color: #e74c3c;
+        }
+
+        .abjad-display {
+            text-align: center;
+            font-size: 3em;
+            letter-spacing: 12px;
+            margin: 20px 0;
+            color: #d4af37;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background: rgba(26, 26, 46, 0.8);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.8s;
+        }
+
+        .abjad-display.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .abjad-label {
+            font-size: 0.4em;
+            color: #8b7355;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .unlock-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: linear-gradient(135deg, #d4af37 0%, #8b7355 100%);
+            color: #1a1a2e;
+            padding: 30px 50px;
+            border-radius: 10px;
+            font-size: 1.5em;
+            font-weight: bold;
+            box-shadow: 0 0 60px rgba(212, 175, 55, 0.6);
+            opacity: 0;
+            transition: all 0.5s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .unlock-message.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>VAL-DROK NOK-TRES</h1>
+        <p class="subtitle">The Valdrok Hanging Tree</p>
+    </div>
+
+    <div class="game-container">
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="valdrok">Valdrok → English</button>
+            <button class="mode-btn" data-mode="english">English → Valdrok</button>
+            <button class="mode-btn" data-mode="mixed">Mixed Mode</button>
+        </div>
+
+        <div class="difficulty-selector">
+            <button class="diff-btn active" data-diff="easy">Easy (Tier 1)</button>
+            <button class="diff-btn" data-diff="medium" disabled>Medium (Tier 2)</button>
+            <button class="diff-btn" data-diff="hard" disabled>Hard (Tier 3)</button>
+        </div>
+
+        <div class="message" id="message"></div>
+
+        <div class="abjad-display" id="abjad-display">
+            <div class="abjad-label">Valdrok Abjad</div>
+            <div id="abjad-text"></div>
+        </div>
+
+        <div class="tree-container">
+            <div class="tree-visual">
+                <div class="tree-trunk">
+                    <div class="tree-branches">
+                        <div class="branch left"></div>
+                        <div class="branch right"></div>
+                    </div>
+                </div>
+                <div class="runes-container">
+                    <div class="rune">✦</div>
+                    <div class="rune">✧</div>
+                    <div class="rune">⚔</div>
+                    <div class="rune">☠</div>
+                    <div class="rune">❂</div>
+                    <div class="rune">⚡</div>
+                </div>
+            </div>
+
+            <div class="game-info">
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Words Mastered</div>
+                        <div class="stat-value" id="words-mastered">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Current Streak</div>
+                        <div class="stat-value" id="current-streak">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Wrong Guesses</div>
+                        <div class="stat-value" id="wrong-guesses">0/6</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Hints</div>
+                        <div class="stat-value" id="hints-display">💡 3</div>
+                    </div>
+                </div>
+
+                <div class="meaning-hint" id="meaning-hint">Guess the word...</div>
+                <div class="word-display" id="word-display">_ _ _ _</div>
+
+                <div class="keyboard" id="keyboard"></div>
+
+                <div class="controls">
+                    <button class="control-btn" onclick="newWord()">New Word</button>
+                    <button class="control-btn" onclick="giveUp()">Give Up</button>
+                    <button class="control-btn" onclick="resetGame()">Reset Progress</button>
+                </div>
+
+                <div class="hint-section">
+                    <div class="hint-header">
+                        <span class="hint-title">Available Hints</span>
+                        <span class="hint-counter"><span id="hints-count">3</span> remaining</span>
+                    </div>
+                    <div class="hint-buttons">
+                        <button class="hint-btn" id="hint-root" onclick="useHint('root')">Show Root</button>
+                        <button class="hint-btn" id="hint-category" onclick="useHint('category')">Show Category</button>
+                        <button class="hint-btn" id="hint-example" onclick="useHint('example')">Usage Example</button>
+                        <button class="hint-btn" id="hint-similar" onclick="useHint('similar')">Similar Word</button>
+                        <button class="hint-btn" id="hint-letter" onclick="useHint('letter')">Reveal Letter</button>
+                    </div>
+                    <div class="hint-display" id="hint-display">
+                        Use hints wisely. Earn 2 more for each correct word!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="unlock-message" id="unlock-message"></div>
+
+    <script>
+        // WORD POOLS - Volume 1 Core Roots
+        // Organized by Tier System from dictionary
+        const WORD_POOL = {
+            easy: [
+                // TIER 1 - Use Constantly (20 core roots)
+                { valdrok: 'val', english: 'blood', category: 'Body', roots: ['val'], tier: 1 },
+                { valdrok: 'tor', english: 'lord', category: 'Society', roots: ['tor'], tier: 1 },
+                { valdrok: 'mor', english: 'heart', category: 'Body', roots: ['mor'], tier: 1 },
+                { valdrok: 'kin', english: 'family', category: 'Society', roots: ['kin'], tier: 1 },
+                { valdrok: 'hal', english: 'hall', category: 'Society', roots: ['hal'], tier: 1 },
+                { valdrok: 'fyr', english: 'fire', category: 'Elements', roots: ['fyr'], tier: 1 },
+                { valdrok: 'zur', english: 'water', category: 'Elements', roots: ['zur'], tier: 1 },
+                { valdrok: 'kel', english: 'stone', category: 'Nature', roots: ['kel'], tier: 1 },
+                { valdrok: 'nok', english: 'death', category: 'Time', roots: ['nok'], tier: 1 },
+                { valdrok: 'an', english: 'life', category: 'Time', roots: ['an'], tier: 1 },
+                { valdrok: 'mol', english: 'bind', category: 'Actions', roots: ['mol'], tier: 1 },
+                { valdrok: 'thrak', english: 'take', category: 'Actions', roots: ['thrak'], tier: 1 },
+                { valdrok: 'grul', english: 'eat', category: 'Actions', roots: ['grul'], tier: 1 },
+                { valdrok: 'strik', english: 'strike', category: 'Actions', roots: ['strik'], tier: 1 },
+                { valdrok: 'rath', english: 'full', category: 'Qualities', roots: ['rath'], tier: 1 },
+                { valdrok: 'sakr', english: 'sacred', category: 'Ritual', roots: ['sakr'], tier: 1 },
+                { valdrok: 'spyr', english: 'spiral', category: 'Ritual', roots: ['spyr'], tier: 1 },
+                { valdrok: 'drok', english: 'word', category: 'Ritual', roots: ['drok'], tier: 1 },
+                { valdrok: 'zok', english: 'knowledge', category: 'Ritual', roots: ['zok'], tier: 1 },
+                { valdrok: 'shan', english: 'mark', category: 'Ritual', roots: ['shan'], tier: 1 }
+            ],
+            medium: [
+                // TIER 2 - Use Regularly (50 roots) - Mixed with Tier 1
+                { valdrok: 'krath', english: 'flesh', category: 'Body', roots: ['krath'], tier: 2 },
+                { valdrok: 'os', english: 'bone', category: 'Body', roots: ['os'], tier: 2 },
+                { valdrok: 'skal', english: 'skin', category: 'Body', roots: ['skal'], tier: 2 },
+                { valdrok: 'thul', english: 'head', category: 'Body', roots: ['thul'], tier: 2 },
+                { valdrok: 'gar', english: 'hand', category: 'Body', roots: ['gar'], tier: 2 },
+                { valdrok: 'brak', english: 'arm', category: 'Body', roots: ['brak'], tier: 2 },
+                { valdrok: 'folk', english: 'people', category: 'Society', roots: ['folk'], tier: 2 },
+                { valdrok: 'thral', english: 'servant', category: 'Society', roots: ['thral'], tier: 2 },
+                { valdrok: 'gran', english: 'earth', category: 'Nature', roots: ['gran'], tier: 2 },
+                { valdrok: 'vind', english: 'wind', category: 'Elements', roots: ['vind'], tier: 2 },
+                { valdrok: 'skar', english: 'ice', category: 'Elements', roots: ['skar'], tier: 2 },
+                { valdrok: 'sol', english: 'sun', category: 'Nature', roots: ['sol'], tier: 2 },
+                { valdrok: 'lun', english: 'moon', category: 'Nature', roots: ['lun'], tier: 2 },
+                { valdrok: 'se', english: 'sea', category: 'Nature', roots: ['se'], tier: 2 },
+                { valdrok: 'dag', english: 'day', category: 'Time', roots: ['dag'], tier: 2 },
+                { valdrok: 'nit', english: 'night', category: 'Time', roots: ['nit'], tier: 2 },
+                { valdrok: 'giv', english: 'give', category: 'Actions', roots: ['giv'], tier: 2 },
+                { valdrok: 'kur', english: 'heal', category: 'Actions', roots: ['kur'], tier: 2 },
+                { valdrok: 'ban', english: 'curse', category: 'Actions', roots: ['ban'], tier: 2 },
+                { valdrok: 'kren', english: 'break', category: 'Actions', roots: ['kren'], tier: 2 },
+                { valdrok: 'slep', english: 'sleep', category: 'Actions', roots: ['slep'], tier: 2 },
+                { valdrok: 'vak', english: 'wake', category: 'Actions', roots: ['vak'], tier: 2 },
+                { valdrok: 'groth', english: 'grow', category: 'Actions', roots: ['groth'], tier: 2 },
+                { valdrok: 'rot', english: 'decay', category: 'Actions', roots: ['rot'], tier: 2 },
+                { valdrok: 'trans', english: 'change', category: 'Actions', roots: ['trans'], tier: 2 },
+                { valdrok: 'stron', english: 'endure', category: 'Qualities', roots: ['stron'], tier: 2 },
+                { valdrok: 'mani', english: 'many', category: 'Numbers', roots: ['mani'], tier: 2 },
+                { valdrok: 'sek', english: 'one', category: 'Numbers', roots: ['sek'], tier: 2 },
+                { valdrok: 'lur', english: 'light', category: 'Qualities', roots: ['lur'], tier: 2 },
+                { valdrok: 'noth', english: 'dark', category: 'Qualities', roots: ['noth'], tier: 2 },
+                { valdrok: 'ther', english: 'hot', category: 'Qualities', roots: ['ther'], tier: 2 },
+                { valdrok: 'kalt', english: 'cold', category: 'Qualities', roots: ['kalt'], tier: 2 },
+                { valdrok: 'sal', english: 'salt', category: 'Qualities', roots: ['sal'], tier: 2 },
+                { valdrok: 'ver', english: 'true', category: 'Qualities', roots: ['ver'], tier: 2 },
+                { valdrok: 'oyl', english: 'oil', category: 'Materials', roots: ['oyl'], tier: 2 },
+                { valdrok: 'hund', english: 'dog', category: 'Animals', roots: ['hund'], tier: 2 },
+                { valdrok: 'ox', english: 'ox', category: 'Animals', roots: ['ox'], tier: 2 },
+                { valdrok: 'shep', english: 'sheep', category: 'Animals', roots: ['shep'], tier: 2 },
+                { valdrok: 'fisk', english: 'fish', category: 'Animals', roots: ['fisk'], tier: 2 },
+                { valdrok: 'vald', english: 'whale', category: 'Animals', roots: ['vald'], tier: 2 },
+                { valdrok: 'iron', english: 'iron', category: 'Materials', roots: ['iron'], tier: 2 },
+                { valdrok: 'gold', english: 'gold', category: 'Materials', roots: ['gold'], tier: 2 },
+                { valdrok: 'rop', english: 'rope', category: 'Materials', roots: ['rop'], tier: 2 },
+                { valdrok: 'nyf', english: 'knife', category: 'Materials', roots: ['nyf'], tier: 2 },
+                { valdrok: 'nav', english: 'navigate', category: 'Maritime', roots: ['nav'], tier: 2 },
+                { valdrok: 'havn', english: 'harbor', category: 'Maritime', roots: ['havn'], tier: 2 },
+                { valdrok: 'kust', english: 'coast', category: 'Maritime', roots: ['kust'], tier: 2 },
+                // VOLUME 2 ADDITIONS - New animal roots
+                { valdrok: 'got', english: 'goat', category: 'Animals', roots: ['got'], tier: 2 },
+                { valdrok: 'svin', english: 'swine', category: 'Animals', roots: ['svin'], tier: 2 },
+                { valdrok: 'hors', english: 'horse', category: 'Animals', roots: ['hors'], tier: 2 },
+                { valdrok: 'hen', english: 'chicken', category: 'Animals', roots: ['hen'], tier: 2 },
+                { valdrok: 'duk', english: 'duck', category: 'Animals', roots: ['duk'], tier: 2 },
+                { valdrok: 'gos', english: 'goose', category: 'Animals', roots: ['gos'], tier: 2 },
+                { valdrok: 'rab', english: 'rabbit', category: 'Animals', roots: ['rab'], tier: 2 },
+                // Time and celestial
+                { valdrok: 'vorn', english: 'before', category: 'Time', roots: ['vorn'], tier: 2 },
+                { valdrok: 'aft', english: 'after', category: 'Time', roots: ['aft'], tier: 2 },
+                { valdrok: 'sum', english: 'half', category: 'Numbers', roots: ['sum'], tier: 2 },
+                { valdrok: 'ster', english: 'star', category: 'Celestial', roots: ['ster'], tier: 2 },
+                // Materials
+                { valdrok: 'glas', english: 'glass', category: 'Materials', roots: ['glas'], tier: 2 },
+                { valdrok: 'klay', english: 'clay', category: 'Materials', roots: ['klay'], tier: 2 },
+                { valdrok: 'vit', english: 'white', category: 'Colors', roots: ['vit'], tier: 2 },
+                // VOLUME 3 ADDITIONS - Domain vocabulary
+                { valdrok: 'kurs', english: 'course', category: 'Maritime', roots: ['kurs'], tier: 2 },
+                { valdrok: 'tyd', english: 'tide', category: 'Maritime', roots: ['tyd'], tier: 2 },
+                { valdrok: 'dryft', english: 'drift', category: 'Maritime', roots: ['dryft'], tier: 2 },
+                { valdrok: 'kalm', english: 'calm', category: 'Qualities', roots: ['kalm'], tier: 2 },
+                { valdrok: 'svel', english: 'swell', category: 'Maritime', roots: ['svel'], tier: 2 },
+                { valdrok: 'krev', english: 'chamber', category: 'Architecture', roots: ['krev'], tier: 2 },
+                { valdrok: 'korn', english: 'grain', category: 'Food', roots: ['korn'], tier: 2 },
+                { valdrok: 'stul', english: 'wall', category: 'Architecture', roots: ['stul'], tier: 2 },
+                { valdrok: 'fur', english: 'fur', category: 'Materials', roots: ['fur'], tier: 2 },
+                { valdrok: 'flor', english: 'flower', category: 'Nature', roots: ['flor'], tier: 2 },
+                { valdrok: 'thorn', english: 'thorn', category: 'Nature', roots: ['thorn'], tier: 2 },
+                { valdrok: 'pris', english: 'price', category: 'Trade', roots: ['pris'], tier: 2 },
+                { valdrok: 'karg', english: 'cargo', category: 'Trade', roots: ['karg'], tier: 2 },
+                { valdrok: 'herb', english: 'herb', category: 'Nature', roots: ['herb'], tier: 2 },
+                // VOLUME 4 ADDITIONS - Living Language
+                { valdrok: 'mun', english: 'memory', category: 'Mind', roots: ['mun'], tier: 2 },
+                { valdrok: 'tu', english: 'two', category: 'Numbers', roots: ['tu'], tier: 2 },
+                { valdrok: 'thre', english: 'three', category: 'Numbers', roots: ['thre'], tier: 2 },
+                { valdrok: 'tal', english: 'count', category: 'Numbers', roots: ['tal'], tier: 2 },
+                { valdrok: 'skil', english: 'skill', category: 'Qualities', roots: ['skil'], tier: 2 },
+                { valdrok: 'batal', english: 'battle', category: 'War', roots: ['batal'], tier: 2 },
+                { valdrok: 'vrak', english: 'wreck', category: 'Maritime', roots: ['vrak'], tier: 2 },
+                { valdrok: 'blik', english: 'moment', category: 'Time', roots: ['blik'], tier: 2 },
+                { valdrok: 'yer', english: 'year', category: 'Time', roots: ['yer'], tier: 2 },
+                { valdrok: 'sond', english: 'sand', category: 'Nature', roots: ['sond'], tier: 2 },
+                { valdrok: 'gryn', english: 'green', category: 'Colors', roots: ['gryn'], tier: 2 },
+                { valdrok: 'um', english: 'uncertain', category: 'Qualities', roots: ['um'], tier: 2 },
+                { valdrok: 'trad', english: 'trade', category: 'Trade', roots: ['trad'], tier: 2 },
+                // VOLUME 5 ADDITIONS - Common Tongue (clean vocabulary)
+                // Essential pronouns
+                { valdrok: 'ek', english: 'I', category: 'Pronouns', roots: ['ek'], tier: 2 },
+                { valdrok: 'thu', english: 'you', category: 'Pronouns', roots: ['thu'], tier: 2 },
+                { valdrok: 'han', english: 'he', category: 'Pronouns', roots: ['han'], tier: 2 },
+                { valdrok: 'shen', english: 'she', category: 'Pronouns', roots: ['shen'], tier: 2 },
+                // Question words
+                { valdrok: 'hvo', english: 'who', category: 'Questions', roots: ['hvo'], tier: 2 },
+                { valdrok: 'hvat', english: 'what', category: 'Questions', roots: ['hvat'], tier: 2 },
+                { valdrok: 'hvar', english: 'where', category: 'Questions', roots: ['hvar'], tier: 2 },
+                { valdrok: 'hven', english: 'when', category: 'Questions', roots: ['hven'], tier: 2 },
+                { valdrok: 'hvy', english: 'why', category: 'Questions', roots: ['hvy'], tier: 2 },
+                { valdrok: 'hvu', english: 'how', category: 'Questions', roots: ['hvu'], tier: 2 },
+                // Common verbs
+                { valdrok: 'es', english: 'be', category: 'Verbs', roots: ['es'], tier: 2 },
+                { valdrok: 'hav', english: 'have', category: 'Verbs', roots: ['hav'], tier: 2 },
+                { valdrok: 'wrek', english: 'work', category: 'Verbs', roots: ['wrek'], tier: 2 },
+                { valdrok: 'kom', english: 'come', category: 'Verbs', roots: ['kom'], tier: 2 },
+                { valdrok: 'far', english: 'go', category: 'Verbs', roots: ['far'], tier: 2 },
+                { valdrok: 'stod', english: 'stand', category: 'Verbs', roots: ['stod'], tier: 2 },
+                // Common adjectives
+                { valdrok: 'god', english: 'good', category: 'Qualities', roots: ['god'], tier: 2 },
+                { valdrok: 'ond', english: 'bad', category: 'Qualities', roots: ['ond'], tier: 2 },
+                { valdrok: 'stor', english: 'big', category: 'Qualities', roots: ['stor'], tier: 2 },
+                { valdrok: 'vid', english: 'wide', category: 'Qualities', roots: ['vid'], tier: 2 },
+                // Greetings and responses
+                { valdrok: 'ja', english: 'yes', category: 'Responses', roots: ['ja'], tier: 2 },
+                { valdrok: 'nej', english: 'no', category: 'Responses', roots: ['nej'], tier: 2 },
+                { valdrok: 'tak', english: 'thanks', category: 'Responses', roots: ['tak'], tier: 2 },
+                { valdrok: 'lov', english: 'love', category: 'Emotions', roots: ['lov'], tier: 2 },
+                // VOLUME 6 ADDITIONS - Expanded Domains
+                // Core emotions
+                { valdrok: 'rag', english: 'rage', category: 'Emotions', roots: ['rag'], tier: 2 },
+                { valdrok: 'hat', english: 'hate', category: 'Emotions', roots: ['hat'], tier: 2 },
+                { valdrok: 'skam', english: 'shame', category: 'Emotions', roots: ['skam'], tier: 2 },
+                { valdrok: 'skyld', english: 'guilt', category: 'Emotions', roots: ['skyld'], tier: 2 },
+                { valdrok: 'prid', english: 'pride', category: 'Emotions', roots: ['prid'], tier: 2 },
+                { valdrok: 'angst', english: 'dread', category: 'Emotions', roots: ['angst'], tier: 2 },
+                { valdrok: 'rost', english: 'calm', category: 'Emotions', roots: ['rost'], tier: 2 },
+                { valdrok: 'hop', english: 'hope', category: 'Emotions', roots: ['hop'], tier: 2 },
+                { valdrok: 'nyd', english: 'envy', category: 'Emotions', roots: ['nyd'], tier: 2 },
+                { valdrok: 'lon', english: 'loneliness', category: 'Emotions', roots: ['lon'], tier: 2 },
+                // Warfare basics
+                { valdrok: 'sverd', english: 'sword', category: 'Warfare', roots: ['sverd'], tier: 2 },
+                { valdrok: 'skold', english: 'shield', category: 'Warfare', roots: ['skold'], tier: 2 },
+                { valdrok: 'sper', english: 'spear', category: 'Warfare', roots: ['sper'], tier: 2 },
+                { valdrok: 'helm', english: 'helmet', category: 'Warfare', roots: ['helm'], tier: 2 },
+                { valdrok: 'brynja', english: 'armor', category: 'Warfare', roots: ['brynja'], tier: 2 },
+                { valdrok: 'her', english: 'army', category: 'Warfare', roots: ['her'], tier: 2 },
+                { valdrok: 'batal', english: 'battle', category: 'Warfare', roots: ['batal'], tier: 2 },
+                // Seasons
+                { valdrok: 'var', english: 'spring', category: 'Seasons', roots: ['var'], tier: 2 },
+                { valdrok: 'sum-er', english: 'summer', category: 'Seasons', roots: ['sum-er'], tier: 2 },
+                { valdrok: 'harv', english: 'harvest', category: 'Seasons', roots: ['harv'], tier: 2 },
+                { valdrok: 'vint', english: 'winter', category: 'Seasons', roots: ['vint'], tier: 2 },
+                { valdrok: 'frost', english: 'frost', category: 'Weather', roots: ['frost'], tier: 2 },
+                { valdrok: 'thav', english: 'thaw', category: 'Weather', roots: ['thav'], tier: 2 },
+                { valdrok: 'storm', english: 'storm', category: 'Weather', roots: ['storm'], tier: 2 },
+                { valdrok: 'regn', english: 'rain', category: 'Weather', roots: ['regn'], tier: 2 },
+                { valdrok: 'sno', english: 'snow', category: 'Weather', roots: ['sno'], tier: 2 },
+                // Architecture basics
+                { valdrok: 'rum', english: 'room', category: 'Architecture', roots: ['rum'], tier: 2 },
+                { valdrok: 'trap', english: 'stairs', category: 'Architecture', roots: ['trap'], tier: 2 },
+                { valdrok: 'tak', english: 'ceiling', category: 'Architecture', roots: ['tak'], tier: 2 },
+                { valdrok: 'golv', english: 'floor', category: 'Architecture', roots: ['golv'], tier: 2 },
+                { valdrok: 'dor', english: 'door', category: 'Architecture', roots: ['dor'], tier: 2 },
+                { valdrok: 'non', english: 'no/not', category: 'Negation', roots: ['non'], tier: 2 },
+                { valdrok: 'bit', english: 'bitter', category: 'Qualities', roots: ['bit'], tier: 2 },
+                // VOLUME 7 ADDITIONS - The Feminine Tongue (for the ladies)
+                // Romance roots
+                { valdrok: 'kys', english: 'kiss', category: 'Romance', roots: ['kys'], tier: 2 },
+                { valdrok: 'omfam', english: 'embrace', category: 'Romance', roots: ['omfam'], tier: 2 },
+                { valdrok: 'kær', english: 'dear', category: 'Romance', roots: ['kær'], tier: 2 },
+                { valdrok: 'søt', english: 'sweet', category: 'Romance', roots: ['søt'], tier: 2 },
+                { valdrok: 'lengsel', english: 'longing', category: 'Romance', roots: ['lengsel'], tier: 2 },
+                { valdrok: 'savn', english: 'missing', category: 'Romance', roots: ['savn'], tier: 2 },
+                { valdrok: 'tro', english: 'faithful', category: 'Romance', roots: ['tro'], tier: 2 },
+                { valdrok: 'blyg', english: 'shy', category: 'Romance', roots: ['blyg'], tier: 2 },
+                // Beauty roots
+                { valdrok: 'skøn', english: 'beautiful', category: 'Beauty', roots: ['skøn'], tier: 2 },
+                { valdrok: 'pyn', english: 'adorn', category: 'Beauty', roots: ['pyn'], tier: 2 },
+                { valdrok: 'smyk', english: 'jewelry', category: 'Beauty', roots: ['smyk'], tier: 2 },
+                { valdrok: 'duft', english: 'scent', category: 'Beauty', roots: ['duft'], tier: 2 },
+                { valdrok: 'flette', english: 'braid', category: 'Beauty', roots: ['flette'], tier: 2 },
+                { valdrok: 'kam', english: 'comb', category: 'Beauty', roots: ['kam'], tier: 2 },
+                // Domestic roots
+                { valdrok: 'sy', english: 'sew', category: 'Domestic', roots: ['sy'], tier: 2 },
+                { valdrok: 'ren', english: 'clean', category: 'Domestic', roots: ['ren'], tier: 2 },
+                { valdrok: 'orden', english: 'order', category: 'Domestic', roots: ['orden'], tier: 2 },
+                { valdrok: 'vug', english: 'rock', category: 'Domestic', roots: ['vug'], tier: 2 },
+                { valdrok: 'te', english: 'tea', category: 'Domestic', roots: ['te'], tier: 2 },
+                { valdrok: 'vert', english: 'host', category: 'Domestic', roots: ['vert'], tier: 2 },
+                // Soft emotions
+                { valdrok: 'varm', english: 'warm', category: 'Emotions', roots: ['varm'], tier: 2 },
+                { valdrok: 'spel', english: 'play', category: 'Actions', roots: ['spel'], tier: 2 }
+            ],
+            hard: [
+                // TIER 3 - Use Sparingly - Specialized vocabulary
+                { valdrok: 'vor', english: 'eye', category: 'Body', roots: ['vor'], tier: 3 },
+                { valdrok: 'vok', english: 'ear', category: 'Body', roots: ['vok'], tier: 3 },
+                { valdrok: 'nos', english: 'nose', category: 'Body', roots: ['nos'], tier: 3 },
+                { valdrok: 'kul', english: 'mouth', category: 'Body', roots: ['kul'], tier: 3 },
+                { valdrok: 'gren', english: 'tooth', category: 'Body', roots: ['gren'], tier: 3 },
+                { valdrok: 'thar', english: 'tongue', category: 'Body', roots: ['thar'], tier: 3 },
+                { valdrok: 'nak', english: 'neck', category: 'Body', roots: ['nak'], tier: 3 },
+                { valdrok: 'brest', english: 'chest', category: 'Body', roots: ['brest'], tier: 3 },
+                { valdrok: 'bel', english: 'belly', category: 'Body', roots: ['bel'], tier: 3 },
+                { valdrok: 'fut', english: 'foot', category: 'Body', roots: ['fut'], tier: 3 },
+                { valdrok: 'leg', english: 'leg', category: 'Body', roots: ['leg'], tier: 3 },
+                { valdrok: 'bak', english: 'back', category: 'Body', roots: ['bak'], tier: 3 },
+                { valdrok: 'lev-er', english: 'liver', category: 'Body', roots: ['lev-er'], tier: 3 },
+                { valdrok: 'lung', english: 'lung', category: 'Body', roots: ['lung'], tier: 3 },
+                { valdrok: 'mak', english: 'mother', category: 'Society', roots: ['mak'], tier: 3 },
+                { valdrok: 'fak', english: 'father', category: 'Society', roots: ['fak'], tier: 3 },
+                { valdrok: 'bror', english: 'brother', category: 'Society', roots: ['bror'], tier: 3 },
+                { valdrok: 'sus', english: 'sister', category: 'Society', roots: ['sus'], tier: 3 },
+                { valdrok: 'wyf', english: 'wife', category: 'Society', roots: ['wyf'], tier: 3 },
+                { valdrok: 'huz', english: 'husband', category: 'Society', roots: ['huz'], tier: 3 },
+                { valdrok: 'tres', english: 'tree', category: 'Nature', roots: ['tres'], tier: 3 },
+                { valdrok: 'gras', english: 'grass', category: 'Nature', roots: ['gras'], tier: 3 },
+                { valdrok: 'root', english: 'root', category: 'Nature', roots: ['root'], tier: 3 },
+                { valdrok: 'leaf', english: 'leaf', category: 'Nature', roots: ['leaf'], tier: 3 },
+                { valdrok: 'bark', english: 'bark', category: 'Nature', roots: ['bark'], tier: 3 },
+                { valdrok: 'mount', english: 'mountain', category: 'Nature', roots: ['mount'], tier: 3 },
+                { valdrok: 'vek', english: 'sky', category: 'Nature', roots: ['vek'], tier: 3 },
+                { valdrok: 'ster', english: 'star', category: 'Celestial', roots: ['ster'], tier: 3 },
+                { valdrok: 'thrust', english: 'pierce', category: 'Actions', roots: ['thrust'], tier: 3 },
+                { valdrok: 'drynk', english: 'drink', category: 'Actions', roots: ['drynk'], tier: 3 },
+                { valdrok: 'drem', english: 'dream', category: 'Actions', roots: ['drem'], tier: 3 },
+                { valdrok: 'kuk', english: 'cook', category: 'Actions', roots: ['kuk'], tier: 3 },
+                { valdrok: 'miks', english: 'mix', category: 'Actions', roots: ['miks'], tier: 3 },
+                { valdrok: 'wolf', english: 'wolf', category: 'Animals', roots: ['wolf'], tier: 3 },
+                { valdrok: 'ber', english: 'bear', category: 'Animals', roots: ['ber'], tier: 3 },
+                { valdrok: 'fox', english: 'fox', category: 'Animals', roots: ['fox'], tier: 3 },
+                { valdrok: 'rav-en', english: 'raven', category: 'Animals', roots: ['rav-en'], tier: 3 },
+                { valdrok: 'der', english: 'deer', category: 'Animals', roots: ['der'], tier: 3 },
+                { valdrok: 'silv', english: 'silver', category: 'Materials', roots: ['silv'], tier: 3 },
+                { valdrok: 'kop-er', english: 'copper', category: 'Materials', roots: ['kop-er'], tier: 3 },
+                // VOLUME 2 ADDITIONS - Specialized terms
+                { valdrok: 'serpent', english: 'snake', category: 'Animals', roots: ['serpent'], tier: 3 },
+                { valdrok: 'frog', english: 'frog', category: 'Animals', roots: ['frog'], tier: 3 },
+                { valdrok: 'worm', english: 'worm', category: 'Animals', roots: ['worm'], tier: 3 },
+                { valdrok: 'vand', english: 'wander', category: 'Actions', roots: ['vand'], tier: 3 },
+                { valdrok: 'fal', english: 'fall', category: 'Actions', roots: ['fal'], tier: 3 },
+                { valdrok: 'twyn', english: 'twin', category: 'Numbers', roots: ['twyn'], tier: 3 },
+                { valdrok: 'faz', english: 'phase', category: 'Time', roots: ['faz'], tier: 3 },
+                { valdrok: 'form', english: 'shape', category: 'Qualities', roots: ['form'], tier: 3 },
+                { valdrok: 'flat', english: 'flat', category: 'Qualities', roots: ['flat'], tier: 3 },
+                { valdrok: 'skop', english: 'scope', category: 'Tools', roots: ['skop'], tier: 3 },
+                { valdrok: 'throm', english: 'clot', category: 'Body', roots: ['throm'], tier: 3 },
+                { valdrok: 'los', english: 'loose', category: 'Qualities', roots: ['los'], tier: 3 },
+                { valdrok: 'sour', english: 'sour', category: 'Qualities', roots: ['sour'], tier: 3 },
+                { valdrok: 'dyp', english: 'deep', category: 'Qualities', roots: ['dyp'], tier: 3 },
+                { valdrok: 'ling', english: 'small', category: 'Qualities', roots: ['ling'], tier: 3 },
+                { valdrok: 'nev', english: 'young', category: 'Qualities', roots: ['nev'], tier: 3 },
+                { valdrok: 'rath-lun', english: 'full moon', category: 'Celestial', roots: ['rath', 'lun'], tier: 3 },
+                { valdrok: 'noth-lun', english: 'new moon', category: 'Celestial', roots: ['noth', 'lun'], tier: 3 },
+                { valdrok: 'tor-ox', english: 'bull', category: 'Animals', roots: ['tor', 'ox'], tier: 3 },
+                { valdrok: 'mak-ox', english: 'cow', category: 'Animals', roots: ['mak', 'ox'], tier: 3 },
+                { valdrok: 'ox-ling', english: 'calf', category: 'Animals', roots: ['ox', 'ling'], tier: 3 },
+                // VOLUME 3 ADDITIONS - Specialized maritime and domain work
+                { valdrok: 'harp', english: 'harpoon', category: 'Tools', roots: ['harp'], tier: 3 },
+                { valdrok: 'flens', english: 'flense', category: 'Actions', roots: ['flens'], tier: 3 },
+                { valdrok: 'rend', english: 'render', category: 'Actions', roots: ['rend'], tier: 3 },
+                { valdrok: 'lod', english: 'lead', category: 'Materials', roots: ['lod'], tier: 3 },
+                { valdrok: 'pyl', english: 'needle', category: 'Tools', roots: ['pyl'], tier: 3 },
+                { valdrok: 'ark', english: 'arc', category: 'Shapes', roots: ['ark'], tier: 3 },
+                { valdrok: 'thyn', english: 'thin', category: 'Qualities', roots: ['thyn'], tier: 3 },
+                { valdrok: 'kap', english: 'cape', category: 'Geography', roots: ['kap'], tier: 3 },
+                { valdrok: 'rev', english: 'reef', category: 'Geography', roots: ['rev'], tier: 3 },
+                { valdrok: 'des', english: 'desert', category: 'Geography', roots: ['des'], tier: 3 },
+                { valdrok: 'prow', english: 'prow', category: 'Maritime', roots: ['prow'], tier: 3 },
+                { valdrok: 'hul', english: 'hull', category: 'Maritime', roots: ['hul'], tier: 3 },
+                { valdrok: 'kil', english: 'keel', category: 'Maritime', roots: ['kil'], tier: 3 },
+                { valdrok: 'mast', english: 'mast', category: 'Maritime', roots: ['mast'], tier: 3 },
+                { valdrok: 'rig', english: 'rigging', category: 'Maritime', roots: ['rig'], tier: 3 },
+                { valdrok: 'plank', english: 'plank', category: 'Materials', roots: ['plank'], tier: 3 },
+                // Teaching compounds - show how Valdrok builds meaning
+                { valdrok: 'se-skal', english: 'chart', category: 'Maritime', roots: ['se', 'skal'], tier: 3 },
+                { valdrok: 'val-sakr', english: 'blood sacrifice', category: 'Ritual', roots: ['val', 'sakr'], tier: 3 },
+                { valdrok: 'shep-ling', english: 'lamb', category: 'Animals', roots: ['shep', 'ling'], tier: 3 },
+                { valdrok: 'got-ling', english: 'kid', category: 'Animals', roots: ['got', 'ling'], tier: 3 },
+                { valdrok: 'vald-oyl', english: 'whale oil', category: 'Materials', roots: ['vald', 'oyl'], tier: 3 },
+                { valdrok: 'harp-strik', english: 'harpoon strike', category: 'Actions', roots: ['harp', 'strik'], tier: 3 },
+                { valdrok: 'tres-krath', english: 'timber', category: 'Materials', roots: ['tres', 'krath'], tier: 3 },
+                { valdrok: 'shep-fur', english: 'wool', category: 'Materials', roots: ['shep', 'fur'], tier: 3 },
+                { valdrok: 'rath-tyd', english: 'high tide', category: 'Maritime', roots: ['rath', 'tyd'], tier: 3 },
+                { valdrok: 'noth-tyd', english: 'low tide', category: 'Maritime', roots: ['noth', 'tyd'], tier: 3 },
+                { valdrok: 'vind-skal', english: 'sail', category: 'Maritime', roots: ['vind', 'skal'], tier: 3 },
+                // VOLUME 4 ADDITIONS - Living Language compounds and sacred terms
+                { valdrok: 'eyt', english: 'eight', category: 'Numbers', roots: ['eyt'], tier: 3 },
+                { valdrok: 'ten', english: 'ten', category: 'Numbers', roots: ['ten'], tier: 3 },
+                // Cord-Tongue vocabulary - teaches color and position compounds
+                { valdrok: 'vit-mol', english: 'white cord', category: 'Cord-Tongue', roots: ['vit', 'mol'], tier: 3 },
+                { valdrok: 'noth-mol', english: 'black cord', category: 'Cord-Tongue', roots: ['noth', 'mol'], tier: 3 },
+                { valdrok: 'val-mol', english: 'red cord', category: 'Cord-Tongue', roots: ['val', 'mol'], tier: 3 },
+                { valdrok: 'gold-mol', english: 'gold cord', category: 'Cord-Tongue', roots: ['gold', 'mol'], tier: 3 },
+                { valdrok: 'thul-mol', english: 'head knot', category: 'Cord-Tongue', roots: ['thul', 'mol'], tier: 3 },
+                { valdrok: 'mor-mol', english: 'heart knot', category: 'Cord-Tongue', roots: ['mor', 'mol'], tier: 3 },
+                { valdrok: 'fut-mol', english: 'foot knot', category: 'Cord-Tongue', roots: ['fut', 'mol'], tier: 3 },
+                { valdrok: 'los-mol', english: 'loose knot', category: 'Cord-Tongue', roots: ['los', 'mol'], tier: 3 },
+                { valdrok: 'stron-mol', english: 'tight knot', category: 'Cord-Tongue', roots: ['stron', 'mol'], tier: 3 },
+                { valdrok: 'mun-mol', english: 'record cord', category: 'Cord-Tongue', roots: ['mun', 'mol'], tier: 3 },
+                { valdrok: 'mol-thar', english: 'cord tongue', category: 'Cord-Tongue', roots: ['mol', 'thar'], tier: 3 },
+                // Hearthroom sacred titles
+                { valdrok: 'tor-hal-mor', english: 'lord hall heart', category: 'Hearthroom', roots: ['tor', 'hal', 'mor'], tier: 3 },
+                { valdrok: 'fyr-kur-tor', english: 'fire keeper lord', category: 'Hearthroom', roots: ['fyr', 'kur', 'tor'], tier: 3 },
+                { valdrok: 'mol-thar-mak', english: 'thread tongue mother', category: 'Hearthroom', roots: ['mol', 'thar', 'mak'], tier: 3 },
+                { valdrok: 'bror-val-mak', english: 'brother blood mother', category: 'Hearthroom', roots: ['bror', 'val', 'mak'], tier: 3 },
+                // Blessings and greetings
+                { valdrok: 'hal-an', english: 'hall lives', category: 'Blessings', roots: ['hal', 'an'], tier: 3 },
+                { valdrok: 'fyr-an', english: 'fire lives', category: 'Blessings', roots: ['fyr', 'an'], tier: 3 },
+                { valdrok: 'val-an', english: 'blood lives', category: 'Blessings', roots: ['val', 'an'], tier: 3 },
+                { valdrok: 'se-an', english: 'sea lives', category: 'Blessings', roots: ['se', 'an'], tier: 3 },
+                { valdrok: 'kin-mol', english: 'family binds', category: 'Blessings', roots: ['kin', 'mol'], tier: 3 },
+                // Game vocabulary
+                { valdrok: 'thrust-ling', english: 'dart', category: 'Games', roots: ['thrust', 'ling'], tier: 3 },
+                { valdrok: 'mor-shan', english: 'bullseye', category: 'Games', roots: ['mor', 'shan'], tier: 3 },
+                { valdrok: 'spyr-shan', english: 'ring', category: 'Games', roots: ['spyr', 'shan'], tier: 3 },
+                { valdrok: 'skil-batal', english: 'game', category: 'Games', roots: ['skil', 'batal'], tier: 3 },
+                { valdrok: 'shan-tal', english: 'score', category: 'Games', roots: ['shan', 'tal'], tier: 3 },
+                // Celestial and weather compounds
+                { valdrok: 'val-vek', english: 'red sky', category: 'Weather', roots: ['val', 'vek'], tier: 3 },
+                { valdrok: 'ver-ster', english: 'true star', category: 'Celestial', roots: ['ver', 'ster'], tier: 3 },
+                { valdrok: 'sol-groth', english: 'sunrise', category: 'Time', roots: ['sol', 'groth'], tier: 3 },
+                { valdrok: 'sol-nok', english: 'sunset', category: 'Time', roots: ['sol', 'nok'], tier: 3 },
+                // Complex conceptual compounds
+                { valdrok: 'val-drok', english: 'blood word', category: 'Ritual', roots: ['val', 'drok'], tier: 3 },
+                { valdrok: 'ver-zok', english: 'true knowledge', category: 'Knowledge', roots: ['ver', 'zok'], tier: 3 },
+                { valdrok: 'trad-mol', english: 'trade bind', category: 'Trade', roots: ['trad', 'mol'], tier: 3 },
+                { valdrok: 'ver-drok', english: 'true word', category: 'Ritual', roots: ['ver', 'drok'], tier: 3 },
+                { valdrok: 'tor-spyr-zur', english: 'maelstrom', category: 'Maritime', roots: ['tor', 'spyr', 'zur'], tier: 3 },
+                // VOLUME 5 ADDITIONS - Common Tongue phrases and compounds
+                // More pronouns and demonstratives
+                { valdrok: 'det', english: 'it', category: 'Pronouns', roots: ['det'], tier: 3 },
+                { valdrok: 'dis', english: 'this', category: 'Pronouns', roots: ['dis'], tier: 3 },
+                { valdrok: 'dat', english: 'that', category: 'Pronouns', roots: ['dat'], tier: 3 },
+                // Complex verbs
+                { valdrok: 'skep', english: 'create', category: 'Verbs', roots: ['skep'], tier: 3 },
+                { valdrok: 'grip', english: 'grip', category: 'Verbs', roots: ['grip'], tier: 3 },
+                { valdrok: 'klar', english: 'clear', category: 'Verbs', roots: ['klar'], tier: 3 },
+                { valdrok: 'nam', english: 'name', category: 'Verbs', roots: ['nam'], tier: 3 },
+                { valdrok: 'vil', english: 'will', category: 'Verbs', roots: ['vil'], tier: 3 },
+                { valdrok: 'mus', english: 'must', category: 'Verbs', roots: ['mus'], tier: 3 },
+                { valdrok: 'hop', english: 'hope', category: 'Verbs', roots: ['hop'], tier: 3 },
+                { valdrok: 'fryk', english: 'fear', category: 'Verbs', roots: ['fryk'], tier: 3 },
+                { valdrok: 'help', english: 'help', category: 'Verbs', roots: ['help'], tier: 3 },
+                { valdrok: 'halt', english: 'halt', category: 'Verbs', roots: ['halt'], tier: 3 },
+                // Adjectives and qualities
+                { valdrok: 'ret', english: 'right', category: 'Qualities', roots: ['ret'], tier: 3 },
+                { valdrok: 'let', english: 'light', category: 'Qualities', roots: ['let'], tier: 3 },
+                { valdrok: 'tung', english: 'heavy', category: 'Qualities', roots: ['tung'], tier: 3 },
+                { valdrok: 'hog', english: 'high', category: 'Qualities', roots: ['hog'], tier: 3 },
+                { valdrok: 'lag', english: 'low', category: 'Qualities', roots: ['lag'], tier: 3 },
+                { valdrok: 'kort', english: 'short', category: 'Qualities', roots: ['kort'], tier: 3 },
+                { valdrok: 'smal', english: 'narrow', category: 'Qualities', roots: ['smal'], tier: 3 },
+                { valdrok: 'glad', english: 'joy', category: 'Emotions', roots: ['glad'], tier: 3 },
+                { valdrok: 'sorg', english: 'sorrow', category: 'Emotions', roots: ['sorg'], tier: 3 },
+                // Prepositions and conjunctions
+                { valdrok: 'mid', english: 'with', category: 'Prepositions', roots: ['mid'], tier: 3 },
+                { valdrok: 'mot', english: 'against', category: 'Prepositions', roots: ['mot'], tier: 3 },
+                { valdrok: 'ok', english: 'and', category: 'Conjunctions', roots: ['ok'], tier: 3 },
+                { valdrok: 'men', english: 'but', category: 'Conjunctions', roots: ['men'], tier: 3 },
+                // Time expressions
+                { valdrok: 'nun', english: 'now', category: 'Time', roots: ['nun'], tier: 3 },
+                { valdrok: 'den', english: 'then', category: 'Time', roots: ['den'], tier: 3 },
+                { valdrok: 'fru', english: 'early', category: 'Time', roots: ['fru'], tier: 3 },
+                { valdrok: 'sen', english: 'late', category: 'Time', roots: ['sen'], tier: 3 },
+                // Greeting compounds
+                { valdrok: 'far-god', english: 'farewell', category: 'Greetings', roots: ['far', 'god'], tier: 3 },
+                { valdrok: 'hal-kom', english: 'welcome', category: 'Greetings', roots: ['hal', 'kom'], tier: 3 },
+                { valdrok: 'god-dag', english: 'good day', category: 'Greetings', roots: ['god', 'dag'], tier: 3 },
+                { valdrok: 'god-nit', english: 'good night', category: 'Greetings', roots: ['god', 'nit'], tier: 3 },
+                // Common phrases
+                { valdrok: 'ek-lov-thu', english: 'I love you', category: 'Phrases', roots: ['ek', 'lov', 'thu'], tier: 3 },
+                { valdrok: 'tak-giv', english: 'thank you', category: 'Phrases', roots: ['tak', 'giv'], tier: 3 },
+                { valdrok: 'vil-giv', english: 'please', category: 'Phrases', roots: ['vil', 'giv'], tier: 3 },
+                { valdrok: 'vor-an', english: 'see', category: 'Phrases', roots: ['vor', 'an'], tier: 3 },
+                { valdrok: 'vok-an', english: 'hear', category: 'Phrases', roots: ['vok', 'an'], tier: 3 },
+                { valdrok: 'mor-an', english: 'feel', category: 'Phrases', roots: ['mor', 'an'], tier: 3 },
+                { valdrok: 'zok-an', english: 'know', category: 'Phrases', roots: ['zok', 'an'], tier: 3 },
+                { valdrok: 'klar-an', english: 'understand', category: 'Phrases', roots: ['klar', 'an'], tier: 3 },
+                { valdrok: 'mun-an', english: 'remember', category: 'Phrases', roots: ['mun', 'an'], tier: 3 },
+                // VOLUME 6 ADDITIONS - Expanded teaching compounds
+                // Emotional compounds
+                { valdrok: 'dyp-sorg', english: 'grief', category: 'Emotions', roots: ['dyp', 'sorg'], tier: 3 },
+                { valdrok: 'rath-rag', english: 'full rage', category: 'Emotions', roots: ['rath', 'rag'], tier: 3 },
+                { valdrok: 'rath-fryk', english: 'terror', category: 'Emotions', roots: ['rath', 'fryk'], tier: 3 },
+                { valdrok: 'non-hop', english: 'despair', category: 'Emotions', roots: ['non', 'hop'], tier: 3 },
+                { valdrok: 'kren-mor', english: 'broken heart', category: 'Emotions', roots: ['kren', 'mor'], tier: 3 },
+                { valdrok: 'zur-mor', english: 'drowning feeling', category: 'Emotions', roots: ['zur', 'mor'], tier: 3 },
+                { valdrok: 'thrak-angst', english: 'possession dread', category: 'Emotions', roots: ['thrak', 'angst'], tier: 3 },
+                { valdrok: 'los-ek', english: 'self-loose', category: 'Emotions', roots: ['los', 'ek'], tier: 3 },
+                { valdrok: 'thrak-rag', english: 'borrowed rage', category: 'Emotions', roots: ['thrak', 'rag'], tier: 3 },
+                { valdrok: 'mun-sorg', english: 'nostalgia', category: 'Emotions', roots: ['mun', 'sorg'], tier: 3 },
+                { valdrok: 'bak-sorg', english: 'regret', category: 'Emotions', roots: ['bak', 'sorg'], tier: 3 },
+                { valdrok: 'rost-glad', english: 'contentment', category: 'Emotions', roots: ['rost', 'glad'], tier: 3 },
+                { valdrok: 'vil-zok', english: 'curiosity', category: 'Emotions', roots: ['vil', 'zok'], tier: 3 },
+                // Warfare compounds
+                { valdrok: 'strik-kin', english: 'warband', category: 'Warfare', roots: ['strik', 'kin'], tier: 3 },
+                { valdrok: 'her-tor', english: 'commander', category: 'Warfare', roots: ['her', 'tor'], tier: 3 },
+                { valdrok: 'strik-folk', english: 'soldier', category: 'Warfare', roots: ['strik', 'folk'], tier: 3 },
+                { valdrok: 'skold-stul', english: 'shield wall', category: 'Warfare', roots: ['skold', 'stul'], tier: 3 },
+                { valdrok: 'blik-strik', english: 'charge', category: 'Warfare', roots: ['blik', 'strik'], tier: 3 },
+                { valdrok: 'bak-far', english: 'retreat', category: 'Warfare', roots: ['bak', 'far'], tier: 3 },
+                { valdrok: 'ling-sverd', english: 'dagger', category: 'Warfare', roots: ['ling', 'sverd'], tier: 3 },
+                { valdrok: 'pyl-strik', english: 'arrow', category: 'Warfare', roots: ['pyl', 'strik'], tier: 3 },
+                { valdrok: 'strik-rath', english: 'battle', category: 'Warfare', roots: ['strik', 'rath'], tier: 3 },
+                // Season compounds - Winterdeep vocabulary
+                { valdrok: 'mor-vint', english: 'midwinter', category: 'Seasons', roots: ['mor', 'vint'], tier: 3 },
+                { valdrok: 'dyp-noth', english: 'deep dark', category: 'Seasons', roots: ['dyp', 'noth'], tier: 3 },
+                { valdrok: 'thav-vak', english: 'spring awakening', category: 'Seasons', roots: ['thav', 'vak'], tier: 3 },
+                { valdrok: 'se-thrak', english: 'sea hunt', category: 'Seasons', roots: ['se', 'thrak'], tier: 3 },
+                { valdrok: 'sal-krev', english: 'salt storage', category: 'Seasons', roots: ['sal', 'krev'], tier: 3 },
+                { valdrok: 'sek-frost', english: 'first frost', category: 'Weather', roots: ['sek', 'frost'], tier: 3 },
+                { valdrok: 'bit-kalt', english: 'bitter cold', category: 'Weather', roots: ['bit', 'kalt'], tier: 3 },
+                { valdrok: 'skar-kalt', english: 'freezing', category: 'Weather', roots: ['skar', 'kalt'], tier: 3 },
+                { valdrok: 'sno-storm', english: 'blizzard', category: 'Weather', roots: ['sno', 'storm'], tier: 3 },
+                { valdrok: 'rath-regn', english: 'downpour', category: 'Weather', roots: ['rath', 'regn'], tier: 3 },
+                // Architecture - Castle Vale locations
+                { valdrok: 'tor-hal', english: 'great hall', category: 'Architecture', roots: ['tor', 'hal'], tier: 3 },
+                { valdrok: 'sal-krev', english: 'salt chamber', category: 'Architecture', roots: ['sal', 'krev'], tier: 3 },
+                { valdrok: 'sakr-rum', english: 'ritual chamber', category: 'Architecture', roots: ['sakr', 'rum'], tier: 3 },
+                { valdrok: 'spyr-trap', english: 'spiral stair', category: 'Architecture', roots: ['spyr', 'trap'], tier: 3 },
+                { valdrok: 'zok-rum', english: 'study', category: 'Architecture', roots: ['zok', 'rum'], tier: 3 },
+                { valdrok: 'mun-hal', english: 'archive', category: 'Architecture', roots: ['mun', 'hal'], tier: 3 },
+                { valdrok: 'slep-krev', english: 'bedroom', category: 'Architecture', roots: ['slep', 'krev'], tier: 3 },
+                { valdrok: 'kuk-rum', english: 'kitchen', category: 'Architecture', roots: ['kuk', 'rum'], tier: 3 },
+                { valdrok: 'dyp-krev', english: 'cellar', category: 'Architecture', roots: ['dyp', 'krev'], tier: 3 },
+                { valdrok: 'stron-hal', english: 'fortress', category: 'Architecture', roots: ['stron', 'hal'], tier: 3 },
+                { valdrok: 'fyr-stul', english: 'fireplace', category: 'Architecture', roots: ['fyr', 'stul'], tier: 3 },
+                { valdrok: 'tor-set', english: 'throne', category: 'Furniture', roots: ['tor', 'set'], tier: 3 },
+                // Additional useful roots
+                { valdrok: 'aks', english: 'axe', category: 'Warfare', roots: ['aks'], tier: 3 },
+                { valdrok: 'bov', english: 'bow', category: 'Warfare', roots: ['bov'], tier: 3 },
+                { valdrok: 'set', english: 'seat', category: 'Furniture', roots: ['set'], tier: 3 },
+                { valdrok: 'kamin', english: 'hearth', category: 'Architecture', roots: ['kamin'], tier: 3 },
+                { valdrok: 'ekel', english: 'disgust', category: 'Emotions', roots: ['ekel'], tier: 3 },
+                // VOLUME 7 ADDITIONS - Feminine Tongue compounds
+                // Romance compounds
+                { valdrok: 'søt-mor', english: 'sweetheart', category: 'Romance', roots: ['søt', 'mor'], tier: 3 },
+                { valdrok: 'kær-ling', english: 'darling', category: 'Romance', roots: ['kær', 'ling'], tier: 3 },
+                { valdrok: 'kær-sek', english: 'dear one', category: 'Romance', roots: ['kær', 'sek'], tier: 3 },
+                { valdrok: 'ver-lov', english: 'true love', category: 'Romance', roots: ['ver', 'lov'], tier: 3 },
+                { valdrok: 'søt-kys', english: 'gentle kiss', category: 'Romance', roots: ['søt', 'kys'], tier: 3 },
+                { valdrok: 'fyr-kys', english: 'passionate kiss', category: 'Romance', roots: ['fyr', 'kys'], tier: 3 },
+                { valdrok: 'varm-omfam', english: 'warm embrace', category: 'Romance', roots: ['varm', 'omfam'], tier: 3 },
+                { valdrok: 'mor-kren', english: 'heartbreak', category: 'Romance', roots: ['mor', 'kren'], tier: 3 },
+                { valdrok: 'lov-mol-sakr', english: 'wedding', category: 'Romance', roots: ['lov', 'mol', 'sakr'], tier: 3 },
+                { valdrok: 'søt-lun', english: 'honeymoon', category: 'Romance', roots: ['søt', 'lun'], tier: 3 },
+                { valdrok: 'ek-savn-thu', english: 'I miss you', category: 'Phrases', roots: ['ek', 'savn', 'thu'], tier: 3 },
+                { valdrok: 'ek-os-lov', english: 'my love', category: 'Phrases', roots: ['ek', 'os', 'lov'], tier: 3 },
+                { valdrok: 'ek-os-mor', english: 'my heart', category: 'Phrases', roots: ['ek', 'os', 'mor'], tier: 3 },
+                { valdrok: 'ek-os-søt', english: 'my sweet', category: 'Phrases', roots: ['ek', 'os', 'søt'], tier: 3 },
+                { valdrok: 'gold-mor', english: 'treasure', category: 'Romance', roots: ['gold', 'mor'], tier: 3 },
+                // Beauty compounds
+                { valdrok: 'ling-skøn', english: 'pretty', category: 'Beauty', roots: ['ling', 'skøn'], tier: 3 },
+                { valdrok: 'lov-skøn', english: 'lovely', category: 'Beauty', roots: ['lov', 'skøn'], tier: 3 },
+                { valdrok: 'rath-skøn', english: 'gorgeous', category: 'Beauty', roots: ['rath', 'skøn'], tier: 3 },
+                { valdrok: 'sol-skøn', english: 'radiant', category: 'Beauty', roots: ['sol', 'skøn'], tier: 3 },
+                { valdrok: 'thul-fur', english: 'hair', category: 'Beauty', roots: ['thul', 'fur'], tier: 3 },
+                { valdrok: 'los-fur', english: 'let down hair', category: 'Beauty', roots: ['los', 'fur'], tier: 3 },
+                { valdrok: 'spyr-smyk', english: 'ring', category: 'Beauty', roots: ['spyr', 'smyk'], tier: 3 },
+                { valdrok: 'lov-mol-spyr', english: 'wedding ring', category: 'Beauty', roots: ['lov', 'mol', 'spyr'], tier: 3 },
+                { valdrok: 'nak-smyk', english: 'necklace', category: 'Beauty', roots: ['nak', 'smyk'], tier: 3 },
+                { valdrok: 'søt-duft', english: 'sweet scent', category: 'Beauty', roots: ['søt', 'duft'], tier: 3 },
+                { valdrok: 'flor-duft', english: 'flower scent', category: 'Beauty', roots: ['flor', 'duft'], tier: 3 },
+                // Domestic compounds
+                { valdrok: 'sy-skil', english: 'sewing craft', category: 'Domestic', roots: ['sy', 'skil'], tier: 3 },
+                { valdrok: 'sy-kur', english: 'mend', category: 'Domestic', roots: ['sy', 'kur'], tier: 3 },
+                { valdrok: 'zur-ren', english: 'wash', category: 'Domestic', roots: ['zur', 'ren'], tier: 3 },
+                { valdrok: 'vind-ren', english: 'air out', category: 'Domestic', roots: ['vind', 'ren'], tier: 3 },
+                { valdrok: 'god-orden', english: 'neat', category: 'Domestic', roots: ['god', 'orden'], tier: 3 },
+                { valdrok: 'vug-slep', english: 'cradle', category: 'Domestic', roots: ['vug', 'slep'], tier: 3 },
+                { valdrok: 'rost-giv', english: 'soothe', category: 'Domestic', roots: ['rost', 'giv'], tier: 3 },
+                { valdrok: 'varm-giv', english: 'comfort', category: 'Domestic', roots: ['varm', 'giv'], tier: 3 },
+                { valdrok: 'hal-varm', english: 'hospitality', category: 'Domestic', roots: ['hal', 'varm'], tier: 3 },
+                { valdrok: 'te-giv', english: 'serve tea', category: 'Domestic', roots: ['te', 'giv'], tier: 3 },
+                { valdrok: 'kom-folk', english: 'guest', category: 'Domestic', roots: ['kom', 'folk'], tier: 3 },
+                // Terms of endearment for children
+                { valdrok: 'ling-sek', english: 'little one', category: 'Endearment', roots: ['ling', 'sek'], tier: 3 },
+                { valdrok: 'lov-ling', english: 'little love', category: 'Endearment', roots: ['lov', 'ling'], tier: 3 },
+                { valdrok: 'mor-ling', english: 'little heart', category: 'Endearment', roots: ['mor', 'ling'], tier: 3 },
+                { valdrok: 'pris-ling', english: 'precious one', category: 'Endearment', roots: ['pris', 'ling'], tier: 3 },
+                // Soft emotions
+                { valdrok: 'kur-mor', english: 'caring', category: 'Emotions', roots: ['kur', 'mor'], tier: 3 },
+                { valdrok: 'mor-mid', english: 'compassion', category: 'Emotions', roots: ['mor', 'mid'], tier: 3 },
+                { valdrok: 'god-giv', english: 'kindness', category: 'Emotions', roots: ['god', 'giv'], tier: 3 },
+                { valdrok: 'blik-mor', english: 'flutter heart', category: 'Emotions', roots: ['blik', 'mor'], tier: 3 },
+                { valdrok: 'dyp-tyr', english: 'weep', category: 'Emotions', roots: ['dyp', 'tyr'], tier: 3 },
+                // Feminine phrases
+                { valdrok: 'thu-skøn-an', english: 'you are beautiful', category: 'Phrases', roots: ['thu', 'skøn', 'an'], tier: 3 },
+                { valdrok: 'hal-kom-giv', english: 'welcome', category: 'Phrases', roots: ['hal', 'kom', 'giv'], tier: 3 },
+                { valdrok: 'rost-nun', english: 'hush now', category: 'Phrases', roots: ['rost', 'nun'], tier: 3 },
+                { valdrok: 'ek-dis-in', english: 'I am here', category: 'Phrases', roots: ['ek', 'dis', 'in'], tier: 3 },
+                // Additional roots needed
+                { valdrok: 'tyr', english: 'tear', category: 'Emotions', roots: ['tyr'], tier: 3 },
+                { valdrok: 'os', english: 'my/mine', category: 'Pronouns', roots: ['os'], tier: 3 },
+                { valdrok: 'in', english: 'in/inside', category: 'Prepositions', roots: ['in'], tier: 3 }
+            ]
+        };
+
+        // VALDROK ABJAD SYSTEM
+        // Simplified Unicode representation of the Valdrok script
+        // Consonants are "bones" (base glyphs), vowels are "breath" (diacritics above)
+        
+        const ABJAD_CONSONANTS = {
+            // Stops (angular forms)
+            'p': '├', 'b': '┤', 't': '┬', 'd': '┴', 'k': '┼', 'g': '╋',
+            // Fricatives (flowing/cutting forms)
+            'f': '∼', 'v': '≈', 'th': '⌒', 'dh': '⌓', 'sh': '⌐', 'zh': '⌙',
+            // Nasals (chamber forms)
+            'm': '⊔', 'n': '⊓', 'ng': '⊏',
+            // Liquids (wave forms)
+            'l': '⌙', 'r': '≋',
+            // Glides
+            'w': '⍵', 'y': '⋀',
+            // Additional consonants
+            's': '⌇', 'z': '⌆', 'h': '⌂', 'j': '⋏', 'x': '⋎', 'q': '⋈'
+        };
+        
+        const ABJAD_VOWELS = {
+            // Placed above consonants as combining diacritics
+            'a': '\u0304', // combining macron (dash)
+            'e': '\u0301', // combining acute (back-slash)
+            'i': '\u0307', // combining dot above
+            'o': '\u030A', // combining ring above (circle)
+            'u': '\u0306', // combining breve (cup/chevron)
+            // Dipthongs
+            'æ': '\u0303', 'ø': '\u030B', 'å': '\u030A'
+        };
+        
+        function romanToAbjad(text) {
+            text = text.toLowerCase();
+            let result = '';
+            let i = 0;
+            
+            while (i < text.length) {
+                let char = text[i];
+                
+                // Handle special cases
+                if (char === '-') {
+                    result += ' ‧ '; // word separator
+                    i++;
+                    continue;
+                }
+                
+                if (char === ' ') {
+                    result += '   ';
+                    i++;
+                    continue;
+                }
+                
+                // Check for digraphs (th, sh, ng, etc.)
+                if (i < text.length - 1) {
+                    const digraph = char + text[i + 1];
+                    if (ABJAD_CONSONANTS[digraph]) {
+                        // Look ahead for vowel
+                        if (i < text.length - 2 && ABJAD_VOWELS[text[i + 2]]) {
+                            result += ABJAD_CONSONANTS[digraph] + ABJAD_VOWELS[text[i + 2]];
+                            i += 3;
+                            continue;
+                        } else {
+                            result += ABJAD_CONSONANTS[digraph];
+                            i += 2;
+                            continue;
+                        }
+                    }
+                }
+                
+                // Check if vowel follows consonant
+                if (ABJAD_CONSONANTS[char]) {
+                    if (i < text.length - 1 && ABJAD_VOWELS[text[i + 1]]) {
+                        result += ABJAD_CONSONANTS[char] + ABJAD_VOWELS[text[i + 1]];
+                        i += 2;
+                    } else {
+                        result += ABJAD_CONSONANTS[char];
+                        i++;
+                    }
+                } 
+                // Word-initial vowel (an-shan / life-mark)
+                else if (ABJAD_VOWELS[char]) {
+                    result += '│' + ABJAD_VOWELS[char]; // vertical line as vowel carrier
+                    i++;
+                }
+                // Fallback for unmapped characters
+                else {
+                    result += char;
+                    i++;
+                }
+            }
+            
+            return result;
+        }
+
+        // Game State
+        let currentWord = null;
+        let guessedLetters = new Set();
+        let wrongGuesses = 0;
+        let maxWrong = 6;
+        let gameActive = true;
+        let wordsMastered = 0;
+        let currentStreak = 0;
+        let hintsAvailable = 3;
+        let usedHints = new Set();
+        let currentMode = 'valdrok'; // valdrok, english, mixed
+        let currentDifficulty = 'easy';
+
+        // DOM elements
+        const wordDisplay = document.getElementById('word-display');
+        const meaningHint = document.getElementById('meaning-hint');
+        const keyboard = document.getElementById('keyboard');
+        const message = document.getElementById('message');
+        const wordsMasteredDisplay = document.getElementById('words-mastered');
+        const currentStreakDisplay = document.getElementById('current-streak');
+        const wrongGuessesDisplay = document.getElementById('wrong-guesses');
+        const hintsDisplay = document.getElementById('hints-display');
+        const hintsCountDisplay = document.getElementById('hints-count');
+        const hintDisplay = document.getElementById('hint-display');
+        const unlockMessage = document.getElementById('unlock-message');
+        const hintRoot = document.getElementById('hint-root');
+        const hintCategory = document.getElementById('hint-category');
+        const hintExample = document.getElementById('hint-example');
+        const hintSimilar = document.getElementById('hint-similar');
+        const hintLetter = document.getElementById('hint-letter');
+        const abjadDisplay = document.getElementById('abjad-display');
+        const abjadText = document.getElementById('abjad-text');
+
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const diffButtons = document.querySelectorAll('.diff-btn');
+
+        function init() {
+            createKeyboard();
+            setupModeButtons();
+            setupDifficultyButtons();
+            newWord();
+        }
+
+        function createKeyboard() {
+            const letters = 'abcdefghijklmnopqrstuvwxyz-';
+            letters.split('').forEach(letter => {
+                const key = document.createElement('button');
+                key.className = 'key';
+                key.textContent = letter;
+                key.setAttribute('data-letter', letter);
+                key.onclick = () => guessLetter(letter);
+                keyboard.appendChild(key);
+            });
+        }
+
+        function setupModeButtons() {
+            modeButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    modeButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentMode = btn.getAttribute('data-mode');
+                    newWord();
+                });
+            });
+        }
+
+        function setupDifficultyButtons() {
+            diffButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (btn.disabled) return;
+                    diffButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentDifficulty = btn.getAttribute('data-diff');
+                    newWord();
+                });
+            });
+        }
+
+        function newWord() {
+            const pool = WORD_POOL[currentDifficulty];
+            currentWord = pool[Math.floor(Math.random() * pool.length)];
+            
+            guessedLetters = new Set();
+            wrongGuesses = 0;
+            gameActive = true;
+            usedHints = new Set();
+            
+            message.style.display = 'none';
+            abjadDisplay.classList.remove('show');
+            resetKeyboard();
+            resetRunes();
+            updateDisplay();
+            updateStats();
+            updateHintButtons();
+            hintDisplay.textContent = 'Use hints wisely. Earn 2 more for each correct word!';
+        }
+
+        function resetKeyboard() {
+            document.querySelectorAll('.key').forEach(key => {
+                key.classList.remove('used', 'correct', 'wrong');
+            });
+        }
+
+        function resetRunes() {
+            document.querySelectorAll('.rune').forEach(rune => {
+                rune.classList.remove('visible');
+            });
+        }
+
+        function guessLetter(letter) {
+            if (!gameActive || guessedLetters.has(letter)) return;
+            
+            guessedLetters.add(letter);
+            
+            let wordToCheck;
+            if (currentMode === 'english') {
+                wordToCheck = currentWord.valdrok;
+            } else {
+                wordToCheck = currentWord.english;
+            }
+            
+            const keyElement = document.querySelector(`[data-letter="${letter}"]`);
+            
+            if (wordToCheck.includes(letter)) {
+                keyElement.classList.add('correct', 'used');
+            } else {
+                keyElement.classList.add('wrong', 'used');
+                wrongGuesses++;
+                showRune(wrongGuesses - 1);
+            }
+            
+            updateDisplay();
+            checkGameState();
+        }
+
+        function showRune(index) {
+            const runes = document.querySelectorAll('.rune');
+            if (index < runes.length) {
+                runes[index].classList.add('visible');
+            }
+        }
+
+        function updateDisplay() {
+            let wordToShow, hintToShow;
+            
+            if (currentMode === 'english') {
+                wordToShow = currentWord.valdrok;
+                hintToShow = `English: "${currentWord.english}" | Category: ${currentWord.category}`;
+            } else {
+                wordToShow = currentWord.english;
+                hintToShow = `Valdrok: "${currentWord.valdrok}" | Category: ${currentWord.category}`;
+            }
+            
+            meaningHint.textContent = hintToShow;
+            
+            const displayText = wordToShow.split('').map(letter => {
+                if (letter === '-') return '-';
+                if (letter === ' ') return ' ';
+                return guessedLetters.has(letter) ? letter : '_';
+            }).join(' ');
+            
+            wordDisplay.textContent = displayText;
+        }
+
+        function checkGameState() {
+            let wordToCheck = currentMode === 'english' ? currentWord.valdrok : currentWord.english;
+            
+            const allGuessed = wordToCheck.split('').every(letter => 
+                letter === '-' || letter === ' ' || guessedLetters.has(letter)
+            );
+            
+            if (allGuessed) {
+                winGame();
+            } else if (wrongGuesses >= maxWrong) {
+                loseGame();
+            }
+        }
+
+        function winGame() {
+            gameActive = false;
+            wordsMastered++;
+            currentStreak++;
+            hintsAvailable += 2;
+            
+            message.className = 'message success';
+            message.textContent = `Success! "${currentWord.valdrok}" = "${currentWord.english}" (${currentWord.category})`;
+            message.style.display = 'block';
+            
+            // Display the word in Valdrok abjad script as reward
+            const abjadWord = romanToAbjad(currentWord.valdrok);
+            abjadText.textContent = abjadWord;
+            abjadDisplay.classList.add('show');
+            
+            checkUnlocks();
+            updateStats();
+        }
+
+        function loseGame() {
+            gameActive = false;
+            currentStreak = 0;
+            
+            message.className = 'message failure';
+            message.textContent = `Failed! "${currentWord.valdrok}" = "${currentWord.english}" (${currentWord.category})`;
+            message.style.display = 'block';
+            
+            updateStats();
+        }
+
+        function checkUnlocks() {
+            if (currentDifficulty === 'easy' && wordsMastered >= 10) {
+                const mediumBtn = document.querySelector('[data-diff="medium"]');
+                if (mediumBtn.disabled) {
+                    mediumBtn.disabled = false;
+                    showUnlockMessage('Medium Difficulty Unlocked! (Tier 2 Words)');
+                }
+            }
+            
+            if (currentDifficulty === 'medium' && wordsMastered >= 30) {
+                const hardBtn = document.querySelector('[data-diff="hard"]');
+                if (hardBtn.disabled) {
+                    hardBtn.disabled = false;
+                    showUnlockMessage('Hard Difficulty Unlocked! (Tier 3 Words)');
+                }
+            }
+        }
+
+        function showUnlockMessage(text) {
+            unlockMessage.textContent = text;
+            unlockMessage.classList.add('show');
+            setTimeout(() => {
+                unlockMessage.classList.remove('show');
+            }, 3000);
+        }
+
+        function giveUp() {
+            if (!gameActive) return;
+            loseGame();
+        }
+
+        function resetGame() {
+            wordsMastered = 0;
+            currentStreak = 0;
+            hintsAvailable = 3;
+            currentDifficulty = 'easy';
+            
+            document.querySelector('[data-diff="medium"]').disabled = true;
+            document.querySelector('[data-diff="hard"]').disabled = true;
+            
+            diffButtons.forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-diff="easy"]').classList.add('active');
+            
+            updateStats();
+            newWord();
+        }
+
+        function useHint(type) {
+            if (hintsAvailable <= 0 || usedHints.has(type)) return;
+            
+            hintsAvailable--;
+            usedHints.add(type);
+            
+            let hintText = '';
+            
+            switch(type) {
+                case 'root':
+                    if (currentWord.roots && currentWord.roots.length > 0) {
+                        hintText = `Root component: "${currentWord.roots[0]}"`;
+                    } else {
+                        hintText = 'This is a root word itself!';
+                    }
+                    break;
+                
+                case 'category':
+                    hintText = `Category: ${currentWord.category} | Tier: ${currentWord.tier}`;
+                    break;
+                
+                case 'example':
+                    hintText = `Example: val-drok (blood-word), sal-kom-un (salt-communion)`;
+                    break;
+                
+                case 'similar':
+                    const pool = WORD_POOL[currentDifficulty];
+                    const similar = pool.filter(w => 
+                        w !== currentWord && w.category === currentWord.category
+                    );
+                    if (similar.length > 0) {
+                        const sim = similar[Math.floor(Math.random() * similar.length)];
+                        hintText = `Similar word: "${sim.valdrok}" = "${sim.english}"`;
+                    } else {
+                        hintText = 'No similar words in this tier!';
+                    }
+                    break;
+                
+                case 'letter':
+                    let wordToReveal = currentMode === 'english' ? currentWord.valdrok : currentWord.english;
+                    const unguessed = wordToReveal.split('').filter(l => 
+                        l !== '-' && l !== ' ' && !guessedLetters.has(l)
+                    );
+                    if (unguessed.length > 0) {
+                        const letter = unguessed[Math.floor(Math.random() * unguessed.length)];
+                        guessLetter(letter);
+                        hintText = `Revealed letter: "${letter}"`;
+                    }
+                    break;
+            }
+            
+            hintDisplay.textContent = hintText;
+            updateHintButtons();
+            updateStats();
+        }
+
+        function updateHintButtons() {
+            const buttons = [hintRoot, hintCategory, hintExample, hintSimilar, hintLetter];
+            const types = ['root', 'category', 'example', 'similar', 'letter'];
+            
+            buttons.forEach((btn, i) => {
+                btn.disabled = hintsAvailable <= 0 || usedHints.has(types[i]);
+            });
+        }
+
+        function updateStats() {
+            hintsCountDisplay.textContent = hintsAvailable;
+            hintsDisplay.textContent = `💡 ${hintsAvailable}`;
+            wordsMasteredDisplay.textContent = wordsMastered;
+            currentStreakDisplay.textContent = currentStreak;
+            wrongGuessesDisplay.textContent = `${wrongGuesses}/${maxWrong}`;
+        }
+
+        init();
+    </script>
+</body>
+</html>

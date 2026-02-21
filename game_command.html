@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valdrok Command - Defend Castle Vale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(180deg, #0a0a1e 0%, #1a1a2e 50%, #2a1520 100%);
+            color: #e8e8e8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #d4af37;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            margin-bottom: 5px;
+            letter-spacing: 3px;
+        }
+
+        .subtitle {
+            font-size: 1em;
+            color: #8b7355;
+            font-style: italic;
+        }
+
+        .game-container {
+            position: relative;
+            width: 900px;
+            max-width: 95vw;
+        }
+
+        .status-bar {
+            background: rgba(26, 26, 46, 0.95);
+            border: 3px solid #d4af37;
+            border-radius: 10px 10px 0 0;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .translate-word {
+            font-size: 1.8em;
+            color: #d4af37;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            font-weight: bold;
+        }
+
+        .translate-label {
+            font-size: 0.9em;
+            color: #8b7355;
+            margin-right: 15px;
+        }
+
+        .lives {
+            font-size: 2em;
+            color: #e74c3c;
+            text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+
+        .game-canvas {
+            display: block;
+            background: linear-gradient(180deg, 
+                rgba(10, 10, 30, 0.9) 0%, 
+                rgba(26, 26, 46, 0.8) 50%,
+                rgba(42, 21, 32, 0.9) 100%);
+            border-left: 3px solid #d4af37;
+            border-right: 3px solid #d4af37;
+        }
+
+        .input-container {
+            background: rgba(26, 26, 46, 0.95);
+            border: 3px solid #d4af37;
+            border-radius: 0 0 10px 10px;
+            padding: 20px 30px;
+            box-shadow: 0 -4px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.8em;
+            font-family: 'Courier New', monospace;
+            background: rgba(44, 62, 80, 0.5);
+            border: 2px solid #8b7355;
+            border-radius: 5px;
+            color: #d4af37;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .input-box:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .input-box.error {
+            animation: shake 0.3s;
+            border-color: #e74c3c;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .game-over {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(42, 21, 32, 0.98) 100%);
+            border: 4px solid #d4af37;
+            border-radius: 15px;
+            padding: 50px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 0 60px rgba(212, 175, 55, 0.6);
+        }
+
+        .game-over.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .game-over h2 {
+            font-size: 3em;
+            color: #e74c3c;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+        }
+
+        .final-score {
+            font-size: 2em;
+            color: #d4af37;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            font-size: 1.3em;
+            background: #d4af37;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .restart-btn:hover {
+            background: #f4d47f;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+        }
+
+        .stats {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin: 20px 0;
+            font-size: 1.2em;
+            color: #8b7355;
+        }
+
+        .stat-value {
+            color: #d4af37;
+            font-weight: bold;
+        }
+
+        .instructions {
+            text-align: center;
+            margin-top: 20px;
+            color: #8b7355;
+            font-size: 0.95em;
+            max-width: 700px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>VALDROK COMMAND</h1>
+        <p class="subtitle">Defend Castle Vale Through Translation</p>
+    </div>
+
+    <div class="game-container">
+        <div class="status-bar">
+            <div>
+                <span class="translate-label">TRANSLATE:</span>
+                <span class="translate-word" id="current-word">BLOOD</span>
+            </div>
+            <div class="lives" id="lives">❤️❤️❤️</div>
+        </div>
+
+        <canvas id="game-canvas" class="game-canvas" width="900" height="500"></canvas>
+
+        <div class="input-container">
+            <input 
+                type="text" 
+                id="input-box" 
+                class="input-box" 
+                placeholder="Type Valdrok translation..."
+                autocomplete="off"
+                spellcheck="false">
+        </div>
+    </div>
+
+    <div class="instructions">
+        <p>Type the Valdrok translation to destroy incoming missiles. Speed increases over time. Don't let Castle Vale fall!</p>
+    </div>
+
+    <div class="game-over" id="game-over">
+        <h2>CASTLE VALE HAS FALLEN</h2>
+        <div class="stats">
+            <div>Score: <span class="stat-value" id="final-score">0</span></div>
+            <div>Words: <span class="stat-value" id="final-words">0</span></div>
+            <div>Wave: <span class="stat-value" id="final-wave">0</span></div>
+        </div>
+        <button class="restart-btn" onclick="restartGame()">REBUILD VALE</button>
+    </div>
+
+    <script>
+        // VALDROK ABJAD SYSTEM (from hanging tree)
+        const ABJAD_CONSONANTS = {
+            'p': '├', 'b': '┤', 't': '┬', 'd': '┴', 'k': '┼', 'g': '╋',
+            'f': '∼', 'v': '≈', 'th': '⌒', 'dh': '⌓', 'sh': '⌐', 'zh': '⌙',
+            'm': '⊔', 'n': '⊓', 'ng': '⊏',
+            'l': '⌙', 'r': '≋',
+            'w': '⍵', 'y': '⋀',
+            's': '⌇', 'z': '⌆', 'h': '⌂', 'j': '⋏', 'x': '⋎', 'q': '⋈'
+        };
+        
+        const ABJAD_VOWELS = {
+            'a': '\u0304', 'e': '\u0301', 'i': '\u0307', 'o': '\u030A', 'u': '\u0306',
+            'æ': '\u0303', 'ø': '\u030B', 'å': '\u030A'
+        };
+        
+        function romanToAbjad(text) {
+            text = text.toLowerCase();
+            let result = '';
+            let i = 0;
+            
+            while (i < text.length) {
+                let char = text[i];
+                
+                if (char === '-') {
+                    result += ' ‧ ';
+                    i++;
+                    continue;
+                }
+                
+                if (char === ' ') {
+                    result += '   ';
+                    i++;
+                    continue;
+                }
+                
+                if (i < text.length - 1) {
+                    const digraph = char + text[i + 1];
+                    if (ABJAD_CONSONANTS[digraph]) {
+                        if (i < text.length - 2 && ABJAD_VOWELS[text[i + 2]]) {
+                            result += ABJAD_CONSONANTS[digraph] + ABJAD_VOWELS[text[i + 2]];
+                            i += 3;
+                            continue;
+                        } else {
+                            result += ABJAD_CONSONANTS[digraph];
+                            i += 2;
+                            continue;
+                        }
+                    }
+                }
+                
+                if (ABJAD_CONSONANTS[char]) {
+                    if (i < text.length - 1 && ABJAD_VOWELS[text[i + 1]]) {
+                        result += ABJAD_CONSONANTS[char] + ABJAD_VOWELS[text[i + 1]];
+                        i += 2;
+                    } else {
+                        result += ABJAD_CONSONANTS[char];
+                        i++;
+                    }
+                } else if (ABJAD_VOWELS[char]) {
+                    result += '│' + ABJAD_VOWELS[char];
+                    i++;
+                } else {
+                    result += char;
+                    i++;
+                }
+            }
+            
+            return result;
+        }
+
+        // WORD POOLS (condensed - using key vocabulary)
+        const WORD_POOLS = {
+            easy: [
+                { valdrok: 'val', english: 'blood' }, { valdrok: 'tor', english: 'lord' },
+                { valdrok: 'mor', english: 'heart' }, { valdrok: 'kin', english: 'family' },
+                { valdrok: 'hal', english: 'hall' }, { valdrok: 'fyr', english: 'fire' },
+                { valdrok: 'zur', english: 'water' }, { valdrok: 'kel', english: 'stone' },
+                { valdrok: 'nok', english: 'death' }, { valdrok: 'an', english: 'life' },
+                { valdrok: 'mol', english: 'bind' }, { valdrok: 'drok', english: 'word' },
+                { valdrok: 'zok', english: 'knowledge' }, { valdrok: 'sakr', english: 'sacred' },
+                { valdrok: 'fyr', english: 'fire' }, { valdrok: 'sal', english: 'salt' },
+                { valdrok: 'ver', english: 'true' }, { valdrok: 'strik', english: 'strike' },
+                { valdrok: 'grul', english: 'eat' }, { valdrok: 'rath', english: 'full' }
+            ],
+            medium: [
+                { valdrok: 'krath', english: 'flesh' }, { valdrok: 'skal', english: 'skin' },
+                { valdrok: 'folk', english: 'people' }, { valdrok: 'vind', english: 'wind' },
+                { valdrok: 'sol', english: 'sun' }, { valdrok: 'lun', english: 'moon' },
+                { valdrok: 'dag', english: 'day' }, { valdrok: 'nit', english: 'night' },
+                { valdrok: 'storm', english: 'storm' }, { valdrok: 'regn', english: 'rain' },
+                { valdrok: 'sno', english: 'snow' }, { valdrok: 'vint', english: 'winter' },
+                { valdrok: 'god', english: 'good' }, { valdrok: 'ond', english: 'bad' },
+                { valdrok: 'lov', english: 'love' }, { valdrok: 'hat', english: 'hate' },
+                { valdrok: 'ek', english: 'I' }, { valdrok: 'thu', english: 'you' }
+            ],
+            hard: [
+                { valdrok: 'val-sakr', english: 'blood sacrifice' },
+                { valdrok: 'fyr-kur-tor', english: 'fire keeper' },
+                { valdrok: 'tor-hal', english: 'great hall' },
+                { valdrok: 'sal-kom-un', english: 'salt communion' },
+                { valdrok: 'rath-lun', english: 'full moon' },
+                { valdrok: 'noth-lun', english: 'new moon' },
+                { valdrok: 'val-drok', english: 'blood word' },
+                { valdrok: 'ver-zok', english: 'true knowledge' },
+                { valdrok: 'ek-lov-thu', english: 'I love you' },
+                { valdrok: 'mor-vint', english: 'midwinter' }
+            ]
+        };
+
+        // Game State
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const inputBox = document.getElementById('input-box');
+        const currentWordDisplay = document.getElementById('current-word');
+        const livesDisplay = document.getElementById('lives');
+        const gameOverScreen = document.getElementById('game-over');
+        
+        let gameActive = false;
+        let lives = 3;
+        let score = 0;
+        let wordsDestroyed = 0;
+        let wave = 1;
+        let missiles = [];
+        let particles = [];
+        let currentWord = null;
+        let baseSpeed = 0.5;
+        let spawnInterval = 2500;
+        let lastSpawn = 0;
+        
+        // Castle at bottom
+        const castle = {
+            x: canvas.width / 2,
+            y: canvas.height - 60,
+            width: 200,
+            height: 80
+        };
+
+        class Missile {
+            constructor() {
+                this.x = Math.random() * (canvas.width - 40) + 20;
+                this.y = -20;
+                this.speed = baseSpeed + (wave * 0.1);
+                this.alive = true;
+            }
+
+            update() {
+                this.y += this.speed;
+                if (this.y > canvas.height - 80) {
+                    this.alive = false;
+                    return true; // Hit castle
+                }
+                return false;
+            }
+
+            draw() {
+                // Glowing missile
+                ctx.save();
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#d4af37';
+                
+                // Missile body
+                ctx.fillStyle = '#d4af37';
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x - 8, this.y + 30);
+                ctx.lineTo(this.x + 8, this.y + 30);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Trail
+                ctx.strokeStyle = 'rgba(212, 175, 55, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x, this.y - 40);
+                ctx.stroke();
+                
+                ctx.restore();
+            }
+        }
+
+        class Particle {
+            constructor(x, y, abjadChar) {
+                this.x = x;
+                this.y = y;
+                this.char = abjadChar;
+                this.vx = (Math.random() - 0.5) * 4;
+                this.vy = (Math.random() - 0.5) * 4;
+                this.life = 1.0;
+                this.size = 20 + Math.random() * 20;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.1; // Gravity
+                this.life -= 0.02;
+                return this.life > 0;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = '#d4af37';
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#d4af37';
+                ctx.font = `${this.size}px "Courier New"`;
+                ctx.textAlign = 'center';
+                ctx.fillText(this.char, this.x, this.y);
+                ctx.restore();
+            }
+        }
+
+        function drawCastle() {
+            ctx.save();
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#8b7355';
+            
+            // Main keep
+            ctx.fillStyle = '#2a1f15';
+            ctx.fillRect(castle.x - 50, castle.y, 100, 60);
+            
+            // Towers
+            ctx.fillRect(castle.x - 80, castle.y + 20, 30, 40);
+            ctx.fillRect(castle.x + 50, castle.y + 20, 30, 40);
+            
+            // Battlements
+            for (let i = 0; i < 5; i++) {
+                ctx.fillRect(castle.x - 50 + (i * 25), castle.y - 10, 15, 10);
+            }
+            
+            // Windows (golden light)
+            ctx.fillStyle = '#d4af37';
+            ctx.fillRect(castle.x - 20, castle.y + 20, 15, 20);
+            ctx.fillRect(castle.x + 5, castle.y + 20, 15, 20);
+            
+            ctx.restore();
+        }
+
+        function spawnMissile() {
+            missiles.push(new Missile());
+        }
+
+        function getLowestMissile() {
+            if (missiles.length === 0) return null;
+            return missiles.reduce((lowest, missile) => 
+                missile.y > lowest.y ? missile : lowest
+            );
+        }
+
+        function destroyMissile(missile) {
+            // Create abjad particle explosion
+            const abjadText = romanToAbjad(currentWord.valdrok);
+            const chars = abjadText.split('');
+            chars.forEach(char => {
+                if (char.trim()) {
+                    particles.push(new Particle(missile.x, missile.y, char));
+                }
+            });
+            
+            missile.alive = false;
+            score += 10 * wave;
+            wordsDestroyed++;
+            nextWord();
+        }
+
+        function nextWord() {
+            let pool;
+            if (wave <= 3) pool = WORD_POOLS.easy;
+            else if (wave <= 7) pool = [...WORD_POOLS.easy, ...WORD_POOLS.medium];
+            else pool = [...WORD_POOLS.easy, ...WORD_POOLS.medium, ...WORD_POOLS.hard];
+            
+            currentWord = pool[Math.floor(Math.random() * pool.length)];
+            currentWordDisplay.textContent = currentWord.english.toUpperCase();
+            inputBox.value = '';
+        }
+
+        function loseLife() {
+            lives--;
+            livesDisplay.textContent = '❤️'.repeat(lives);
+            
+            if (lives <= 0) {
+                gameOver();
+            }
+        }
+
+        function gameOver() {
+            gameActive = false;
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-words').textContent = wordsDestroyed;
+            document.getElementById('final-wave').textContent = wave;
+            gameOverScreen.classList.add('show');
+        }
+
+        function restartGame() {
+            lives = 3;
+            score = 0;
+            wordsDestroyed = 0;
+            wave = 1;
+            missiles = [];
+            particles = [];
+            baseSpeed = 0.5;
+            spawnInterval = 2500;
+            lastSpawn = 0;
+            
+            livesDisplay.textContent = '❤️❤️❤️';
+            gameOverScreen.classList.remove('show');
+            
+            nextWord();
+            gameActive = true;
+            gameLoop();
+        }
+
+        function update(timestamp) {
+            // Spawn missiles
+            if (timestamp - lastSpawn > spawnInterval) {
+                spawnMissile();
+                lastSpawn = timestamp;
+            }
+
+            // Update missiles
+            missiles = missiles.filter(missile => {
+                if (missile.update()) {
+                    loseLife();
+                    return false;
+                }
+                return missile.alive;
+            });
+
+            // Update particles
+            particles = particles.filter(p => p.update());
+
+            // Increase difficulty
+            if (wordsDestroyed > 0 && wordsDestroyed % 10 === 0) {
+                wave++;
+                baseSpeed += 0.1;
+                spawnInterval = Math.max(1000, spawnInterval - 200);
+            }
+        }
+
+        function draw() {
+            // Clear with gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, 'rgba(10, 10, 30, 0.3)');
+            gradient.addColorStop(1, 'rgba(42, 21, 32, 0.3)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw game elements
+            missiles.forEach(m => m.draw());
+            particles.forEach(p => p.draw());
+            drawCastle();
+
+            // Draw wave info
+            ctx.fillStyle = '#8b7355';
+            ctx.font = '16px Georgia';
+            ctx.textAlign = 'right';
+            ctx.fillText(`Wave ${wave} | Score ${score}`, canvas.width - 20, 30);
+        }
+
+        function gameLoop(timestamp = 0) {
+            if (!gameActive) return;
+            
+            update(timestamp);
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Input handling
+        inputBox.addEventListener('input', (e) => {
+            const input = e.target.value.toLowerCase().trim();
+            
+            if (input === currentWord.valdrok) {
+                const lowest = getLowestMissile();
+                if (lowest) {
+                    destroyMissile(lowest);
+                    inputBox.classList.remove('error');
+                }
+            }
+        });
+
+        inputBox.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const input = inputBox.value.toLowerCase().trim();
+                if (input !== currentWord.valdrok) {
+                    inputBox.classList.add('error');
+                    setTimeout(() => inputBox.classList.remove('error'), 300);
+                }
+            }
+        });
+
+        // Start game
+        nextWord();
+        gameActive = true;
+        inputBox.focus();
+        gameLoop();
+    </script>
+</body>
+</html>
