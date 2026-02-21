@@ -196,10 +196,11 @@ function ValdrokPacman() {
   };
 
   // Initialize game
-  const initGame = () => {
+  const initGame = (levelOverride) => {
     const game = gameRef.current;
+    const lvl = levelOverride !== undefined ? levelOverride : level;
     const maze = createMaze();
-    const difficulty = getDifficulty(level);
+    const difficulty = getDifficulty(lvl);
     
     game.maze = maze;
     game.difficulty = difficulty;
@@ -292,13 +293,13 @@ function ValdrokPacman() {
   const nextLevel = () => {
     const newLevel = level + 1;
     setLevel(newLevel);
-    // Reinitialize game state
     touchDirectionRef.current = null;
     lastTouchTimeRef.current = 0;
     setPowerMode(false);
-    setWraithCount(4); // Reset to starting 4 wraiths
+    setWraithCount(4);
     setIsPaused(false);
     setNewWraithName(null);
+    initGame(newLevel);
     setGameState('playing');
   };
 
