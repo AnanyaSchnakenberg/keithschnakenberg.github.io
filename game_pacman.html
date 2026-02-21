@@ -70,9 +70,9 @@ function ValdrokPacman() {
     const difficultyTier = Math.floor((level - 1) / 3); // 0 for levels 1-3, 1 for 4-6, etc.
     
     return {
-      playerSpeed: 0.40, // Faster player
-      wraithSpeed: 0.28 + (difficultyTier * 0.06), // Increases: 0.28, 0.34, 0.40, 0.46...
-      wraithPowerSpeed: 0.22 + (difficultyTier * 0.032), // Increases slower when frightened
+      playerSpeed: 0.33, // Faster player
+      wraithSpeed: 0.23 + (difficultyTier * 0.05), // Increases each tier
+      wraithPowerSpeed: 0.18 + (difficultyTier * 0.026), // Increases slower when frightened
       powerDuration: Math.max(240, 480 - (difficultyTier * 60)), // Decreases: 480, 420, 360, 300, 240 (min 4 seconds)
       modeSwitch: Math.max(180, 300 - (difficultyTier * 30)) // Wraiths switch modes faster
     };

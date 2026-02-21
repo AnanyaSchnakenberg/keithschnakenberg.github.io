@@ -119,6 +119,105 @@
 <script type="text/babel">
 const { useState, useEffect, useCallback, useRef } = React;
 
+
+// English → Valdrok translation lookup for bilingual mode
+const valdrokLookup = {
+  // Common words
+  'the': 'det', 'be': 'an', 'to': 'til', 'of': 'os', 'and': 'mol',
+  'a': 'sek', 'in': 'in', 'that': 'dat', 'have': 'hav-an', 'it': 'det',
+  'for': 'for', 'not': 'non', 'on': 'ut', 'with': 'med', 'he': 'han',
+  'as': 'som', 'you': 'thu', 'do': 'gør-an', 'at': 'at', 'this': 'dis',
+  'but': 'ban', 'his': 'han-os', 'by': 'by', 'from': 'fra', 'they': 'han-oth',
+  'we': 'vek-ek', 'say': 'sag-an', 'her': 'shen', 'she': 'shen', 'or': 'el',
+  'an': 'an', 'will': 'wil', 'my': 'ek-os', 'one': 'sek', 'all': 'rath',
+  'would': 'wil-mod', 'there': 'dat-in', 'their': 'han-oth-os', 'what': 'hvat',
+  'so': 'so', 'up': 'hog', 'out': 'ut', 'if': 'if', 'about': 'om',
+  'who': 'hvo', 'get': 'thrak-an', 'which': 'hvil', 'go': 'far-an', 'me': 'ek',
+  'when': 'hven', 'make': 'groth-an', 'can': 'kan-an', 'like': 'som',
+  'time': 'tyd', 'no': 'non', 'just': 'sek', 'him': 'han', 'know': 'zok-an',
+  'take': 'thrak-an', 'people': 'folk', 'into': 'in-til', 'year': 'tyd-rath',
+  'your': 'thu-os', 'good': 'god', 'some': 'sum', 'could': 'kan-mod',
+  'them': 'han-oth', 'see': 'vor-an', 'other': 'andr', 'than': 'mer',
+  'then': 'hven', 'now': 'nev', 'look': 'vor-an', 'only': 'sek',
+  'come': 'kom-an', 'its': 'det-os', 'over': 'ut-hog', 'think': 'thul-mod-an',
+  'also': 'mol-zok', 'back': 'bak', 'after': 'aft', 'use': 'wrek-an',
+  'two': 'tu', 'how': 'hvu', 'our': 'vek-ek-os', 'work': 'wrek-an',
+  'first': 'sek-rath', 'well': 'god', 'way': 'far-strek', 'even': 'rath',
+  'new': 'nev', 'want': 'vil-an', 'because': 'hvy', 'any': 'sum',
+  'these': 'dis-oth', 'give': 'giv-an', 'day': 'dag', 'most': 'rath-mer', 'us': 'vek-ek',
+  // Horror words
+  'dread': 'angst', 'shadow': 'noth', 'whisper': 'ling-drok', 'creep': 'krath-los',
+  'lurk': 'noth-stod', 'haunt': 'mun-fryk', 'twisted': 'kren-strek', 'dark': 'noth',
+  'fear': 'fryk', 'terror': 'rath-fryk', 'panic': 'blik-fryk', 'scream': 'stron-drok',
+  'silent': 'non-lur', 'hollow': 'non-kel', 'empty': 'non-kel', 'void': 'non-in',
+  'abyss': 'dyp-non', 'chasm': 'dyp-kren', 'depths': 'dyp', 'beneath': 'dyp-in',
+  'crawl': 'ling-far', 'slither': 'serpent-far', 'writhe': 'kren-krath',
+  'torment': 'rath-krul', 'anguish': 'dyp-krul', 'despair': 'non-hop',
+  'madness': 'non-thul', 'insane': 'kren-thul', 'deranged': 'los-thul',
+  'wicked': 'rath-ond', 'sinister': 'noth-ond', 'malevolent': 'rath-hat',
+  'ominous': 'angst-vor', 'foreboding': 'vorn-angst', 'eerie': 'non-kin',
+  'uncanny': 'non-zok', 'grotesque': 'kren-krath', 'macabre': 'nok-skøn',
+  'morbid': 'nok-an', 'ghastly': 'rath-ekel', 'grim': 'rath-noth',
+  'bleak': 'non-hop-klar', 'desolate': 'lon-des', 'forsaken': 'los-kin',
+  'forgotten': 'los-mun', 'abandoned': 'non-mol', 'decay': 'rot',
+  'rot': 'rot', 'corpse': 'nok-krath', 'flesh': 'krath', 'bone': 'kel-krath',
+  'blood': 'val', 'wound': 'kren-krath', 'scar': 'shan-kren', 'pale': 'thyn-lur',
+  'gaunt': 'thyn-krath', 'wither': 'rot-thyn', 'fester': 'rot-ban',
+  'corrupt': 'ban-trans', 'taint': 'ban-shan', 'blight': 'ban-rath',
+  'curse': 'ban', 'hex': 'ban-shan', 'ritual': 'sal-kom-un', 'occult': 'noth-zok',
+  'profane': 'non-sakr', 'unholy': 'non-sakr', 'demonic': 'rath-ond-an',
+  'spectral': 'mun-krath', 'phantom': 'mun-an', 'wraith': 'nok-an',
+  'apparition': 'mun-vor', 'presence': 'stod-an', 'entity': 'non-kin-an',
+  'thing': 'kel-det', 'creature': 'non-kin-krath', 'beast': 'rath-krath',
+  'monster': 'non-kin-rath', 'fiend': 'hat-an', 'nightmare': 'nok-drem',
+  'dream': 'drem', 'sleep': 'slep', 'wake': 'vak', 'stare': 'rath-vor',
+  'watch': 'vor-tyd', 'follow': 'bak-far', 'stalk': 'noth-far',
+  'prey': 'thrak-kel', 'victim': 'thrak-krath', 'escape': 'los-far',
+  'trapped': 'non-far', 'cage': 'non-far-kel', 'prison': 'ban-hal',
+  'chains': 'iron-mol', 'bound': 'mol-an',
+  // Atmosphere words
+  'gloom': 'noth-sorg', 'murky': 'noth-dyp', 'haze': 'mist', 'mist': 'mist',
+  'fog': 'mist-rath', 'shroud': 'noth-skal', 'veil': 'thyn-skal',
+  'cloak': 'noth-skal-gar', 'obscure': 'noth-vor', 'hidden': 'noth-stod',
+  'concealed': 'noth-mol', 'buried': 'dyp-stod', 'submerged': 'dyp-in',
+  'sunken': 'dyp-fal', 'underground': 'dyp-in-golv', 'basement': 'dyp-rum',
+  'cellar': 'dyp-krev', 'attic': 'hog-rum', 'corridor': 'strek-far-rum',
+  'hallway': 'hal-far', 'passage': 'far-rum', 'threshold': 'thol',
+  'doorway': 'dor-thol', 'portal': 'trans-dor', 'gateway': 'tor-dor',
+  'entrance': 'in-thol', 'exit': 'ut-thol', 'labyrinth': 'non-far-strek',
+  'maze': 'kren-far', 'winding': 'kren-strek', 'crooked': 'kren',
+  'warped': 'ban-strek', 'distorted': 'fals-krath', 'bent': 'kren',
+  'broken': 'kren', 'shattered': 'rath-kren', 'cracked': 'ling-kren',
+  'fractured': 'kren-kel', 'crumbling': 'rot-kel', 'decaying': 'rot-an',
+  'rotting': 'rot-an', 'stagnant': 'non-far-an', 'still': 'non-far',
+  'hushed': 'ling-non-lur', 'muted': 'thyn-lur', 'quiet': 'ling-lur',
+  'soundless': 'non-lur', 'voiceless': 'non-drok', 'breathless': 'non-vind-krath',
+  'motionless': 'non-far', 'frozen': 'kalt-stod', 'paralyzed': 'non-far-ban',
+  'cold': 'kalt', 'frigid': 'rath-kalt', 'icy': 'kalt-varm-non', 'bitter': 'bit',
+  'harsh': 'stron-ond', 'cruel': 'rath-hat', 'merciless': 'non-los-skyld',
+  // Psychological words
+  'anxiety': 'angst', 'paranoia': 'rath-angst', 'delusion': 'fals-thul',
+  'trauma': 'dyp-kren-mor', 'obsession': 'rath-thul', 'isolation': 'lon-an',
+  'identity': 'ek-kel', 'mask': 'fals-skal', 'deception': 'fals-kel',
+  'memory': 'mun', 'fragment': 'sum-kren', 'shatter': 'rath-kren',
+  'break': 'kren', 'crack': 'ling-kren', 'spiral': 'spyr', 'descent': 'dyp-far',
+  'fall': 'fal', 'sink': 'dyp-fal', 'hollow': 'non-kel', 'void': 'non-in',
+  // Literary words
+  'tension': 'stron-angst', 'suspense': 'vorn-angst', 'mystery': 'noth-zok',
+  'revelation': 'klar-zok', 'twist': 'kren-strek', 'symbol': 'shan',
+  'metaphor': 'fals-ver-drok', 'irony': 'fals-ver', 'paradox': 'kren-ver',
+  'threshold': 'thol', 'liminal': 'thol-an', 'visceral': 'krath-mor',
+  'primal': 'sek-rath', 'ancient': 'old-rath', 'forgotten': 'los-mun',
+  'forbidden': 'ban', 'haunting': 'mun-fryk-an', 'eternal': 'strek-tyd',
+  'nameless': 'non-nam', 'formless': 'non-krath', 'shapeless': 'non-shan',
+  'infinite': 'non-strek-non', 'timeless': 'non-tyd',
+};
+
+// Get valdrok translation for a word (returns null if not found)
+const getValdrokTranslation = (word) => {
+  return valdrokLookup[word.toLowerCase()] || null;
+};
+
 const wordLists = {
   common: ['the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at', 'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she', 'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what', 'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me', 'when', 'make', 'can', 'like', 'time', 'no', 'just', 'him', 'know', 'take', 'people', 'into', 'year', 'your', 'good', 'some', 'could', 'them', 'see', 'other', 'than', 'then', 'now', 'look', 'only', 'come', 'its', 'over', 'think', 'also', 'back', 'after', 'use', 'two', 'how', 'our', 'work', 'first', 'well', 'way', 'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us'],
   programming: ['function', 'const', 'let', 'var', 'return', 'if', 'else', 'for', 'while', 'class', 'import', 'export', 'default', 'async', 'await', 'try', 'catch', 'throw', 'new', 'this', 'super', 'extends', 'static', 'public', 'private', 'interface', 'type', 'string', 'number', 'boolean', 'null', 'undefined', 'array', 'object', 'map', 'set', 'promise', 'fetch', 'json', 'parse', 'stringify', 'console', 'log', 'error', 'debug', 'module', 'require', 'package', 'install', 'build', 'test', 'deploy', 'server', 'client', 'database', 'query', 'index', 'key', 'value', 'node', 'react', 'component', 'state', 'props', 'hook', 'effect', 'render', 'virtual', 'dom', 'event', 'handler', 'callback', 'arrow', 'template', 'literal', 'spread', 'destructure', 'optional', 'chain'],
@@ -217,7 +316,9 @@ function TypingInvaders() {
       if (prev.length >= config.maxWords) return prev;
       const word = getRandomWord();
       const id = wordIdRef.current++;
-      return [...prev, { id, text: word, x: Math.random() * 80 + 10, y: 0, speed: config.speed * (0.85 + Math.random() * 0.3) }];
+      const translation = getValdrokTranslation(word);
+      const typeTarget = translation || word;
+      return [...prev, { id, text: typeTarget, display: word, translation, x: Math.random() * 80 + 10, y: 0, speed: config.speed * (0.85 + Math.random() * 0.3) }];
     });
   }, [level, getRandomWord]);
 
@@ -385,9 +486,20 @@ function TypingInvaders() {
               animation: 'float 2s ease-in-out infinite' 
             }}
           >
-            {word.text.split('').map((char, i) => (
-              <span key={i} className={input[i] === char ? 'text-green-300' : ''}>{char}</span>
-            ))}
+            {word.translation ? (
+              <div style={{textAlign:'center'}}>
+                <div style={{fontSize:'0.75em', opacity:0.7, marginBottom:'2px', color:'#ccc'}}>{word.display}</div>
+                <div>
+                  {word.text.split('').map((char, i) => (
+                    <span key={i} className={input[i] === char ? 'text-green-300' : ''}>{char}</span>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              word.text.split('').map((char, i) => (
+                <span key={i} className={input[i] === char ? 'text-green-300' : ''}>{char}</span>
+              ))
+            )}
           </div>
         ))}
 
