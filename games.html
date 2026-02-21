@@ -89,102 +89,99 @@
             font-size: 1.15em;
         }
 
-        /* Game cards grid */
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
-            gap: 60px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
             margin: 0 0 80px;
         }
 
-        .game-section {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-        }
-
-        /* Description card above the game */
-        .game-desc {
+        .game-card {
             background: rgba(18, 15, 12, 0.9);
             border: 1px solid #3a3530;
-            border-bottom: none;
-            border-radius: 5px 5px 0 0;
-            padding: 24px 28px 20px;
+            border-radius: 5px;
+            padding: 35px 30px;
             display: flex;
-            align-items: flex-start;
+            flex-direction: column;
             gap: 20px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .game-card:hover {
+            border-color: #6a5a40;
+            box-shadow: 0 0 30px rgba(180, 140, 80, 0.08);
+        }
+
+        .game-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
 
         .game-icon {
             font-size: 2.8em;
             line-height: 1;
             flex-shrink: 0;
-            width: 56px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s ease, filter 0.2s ease;
-            user-select: none;
         }
 
-        .game-icon:hover {
-            transform: scale(1.15);
-            filter: drop-shadow(0 0 8px rgba(212, 196, 160, 0.6));
-        }
-
-        .game-icon:active {
-            transform: scale(0.95);
-        }
-
-        .game-text h3 {
+        .game-titles h3 {
             font-family: 'Cinzel', serif;
             color: #d4c4a0;
             font-size: 1.05em;
             letter-spacing: 2px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
-        .game-text .valdrok-name {
+        .game-titles .valdrok-name {
             font-style: italic;
-            color: #6a5a40;
+            color: #5a4a30;
             font-size: 0.85em;
             letter-spacing: 1px;
-            margin-bottom: 8px;
         }
 
-        .game-text p {
+        .game-desc {
             color: #888;
-            font-size: 0.95em;
-            line-height: 1.6;
-            margin: 0;
+            font-size: 1em;
+            line-height: 1.65;
+            flex-grow: 1;
         }
 
-        .game-text .how-to {
-            color: #6a6a6a;
-            font-size: 0.85em;
-            margin-top: 6px;
+        .how-to {
+            color: #5a5a5a;
+            font-size: 0.88em;
             font-style: italic;
+            border-left: 2px solid #2a2520;
+            padding-left: 12px;
+            margin-top: 4px;
         }
 
-        /* The game iframe */
-        .game-frame-wrap {
-            background: rgba(10, 10, 12, 0.95);
-            border: 1px solid #3a3530;
-            border-top: 1px solid #2a2520;
-            border-radius: 0 0 5px 5px;
-            overflow: hidden;
-            transition: border-color 0.3s;
-        }
-
-        .game-section:hover .game-frame-wrap {
-            border-color: #5a5040;
-        }
-
-        .game-frame-wrap iframe {
-            width: 100%;
-            height: 520px;
-            border: none;
+        .play-btn {
             display: block;
-            background: #111;
+            width: 100%;
+            padding: 14px 20px;
+            background: rgba(212, 196, 160, 0.07);
+            border: 1px solid #4a4030;
+            border-radius: 3px;
+            color: #d4c4a0;
+            font-family: 'Cinzel', serif;
+            font-size: 1em;
+            letter-spacing: 3px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s;
+            margin-top: auto;
+        }
+
+        .play-btn:hover {
+            background: rgba(212, 196, 160, 0.15);
+            border-color: #d4c4a0;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(212, 196, 160, 0.1);
+        }
+
+        .play-btn:active {
+            background: rgba(212, 196, 160, 0.25);
         }
 
         footer {
@@ -203,9 +200,7 @@
 
         @media (max-width: 768px) {
             header h1 { font-size: 2em; }
-            .games-grid { grid-template-columns: 1fr; gap: 40px; }
-            .game-frame-wrap iframe { height: 420px; }
-            .game-desc { flex-direction: column; gap: 12px; }
+            .games-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -228,99 +223,99 @@
         <div class="games-grid">
 
             <!-- 1: HANGING TREE -->
-            <div class="game-section">
-                <div class="game-desc">
-                    <div class="game-icon" onclick="document.getElementById('frame-hang').contentWindow.document.querySelector('button')?.click()" title="Play">🌲</div>
-                    <div class="game-text">
+            <div class="game-card">
+                <div class="game-header">
+                    <div class="game-icon">🌲</div>
+                    <div class="game-titles">
                         <h3>VAL-DROK NOK-TRES</h3>
-                        <div class="valdrok-name">The Valdrok Hanging Tree</div>
-                        <p>Classic hangman, played with the sacred tongue. A word is hidden — Valdrok or English depending on your mode. Guess letters before the tree claims you. Three tiers of difficulty, four types of hints, and both directions of translation.</p>
-                        <p class="how-to">Choose your mode and difficulty, then tap letters to guess. Use hints sparingly — you only get three.</p>
+                        <div class="valdrok-name">The Hanging Tree</div>
                     </div>
                 </div>
-                <div class="game-frame-wrap">
-                    <iframe id="frame-hang" src="game_hanging_tree.html" allowfullscreen></iframe>
+                <div class="game-desc">
+                    <p>Classic hangman played with the sacred tongue. A word is hidden — Valdrok or English depending on your mode. Guess letters before the tree claims you. Three tiers of difficulty, four types of hints, both directions of translation.</p>
+                    <p class="how-to">Choose your mode and difficulty. Tap letters to guess. Use hints sparingly — you only get three.</p>
                 </div>
+                <a href="game_hanging_tree.html" target="_blank" class="play-btn">▶ ENTER</a>
             </div>
 
             <!-- 2: COMMAND -->
-            <div class="game-section">
-                <div class="game-desc">
-                    <div class="game-icon" title="Play">🏰</div>
-                    <div class="game-text">
+            <div class="game-card">
+                <div class="game-header">
+                    <div class="game-icon">🏰</div>
+                    <div class="game-titles">
                         <h3>VALDROK COMMAND</h3>
-                        <div class="valdrok-name">Defend Castle Vale Through Translation</div>
-                        <p>Missiles rain down on Castle Vale. The only way to destroy them is to correctly translate the Valdrok word displayed on each one. Type the translation fast — miss too many and the castle falls. Speed increases with every wave.</p>
-                        <p class="how-to">Read the word on the incoming missile. Type its translation. Press Enter to fire. Don't let them reach the walls.</p>
+                        <div class="valdrok-name">Defend Castle Vale</div>
                     </div>
                 </div>
-                <div class="game-frame-wrap">
-                    <iframe id="frame-cmd" src="game_command.html" allowfullscreen></iframe>
+                <div class="game-desc">
+                    <p>Missiles rain down on Castle Vale. The only way to destroy them is to correctly translate the Valdrok word on each one. Type the translation fast — miss too many and the castle falls. Speed increases with every wave.</p>
+                    <p class="how-to">Read the word on the incoming missile. Type its translation and press Enter to fire. Don't let them reach the walls.</p>
                 </div>
+                <a href="game_command.html" target="_blank" class="play-btn">▶ ENTER</a>
             </div>
 
             <!-- 3: FLASHCARDS -->
-            <div class="game-section">
-                <div class="game-desc">
-                    <div class="game-icon" title="Play">🃏</div>
-                    <div class="game-text">
+            <div class="game-card">
+                <div class="game-header">
+                    <div class="game-icon">🃏</div>
+                    <div class="game-titles">
                         <h3>VALDROK FLASHCARDS</h3>
                         <div class="valdrok-name">Master the Written Script</div>
-                        <p>Two modes, three tiers. In Read Mode, the abjad script is shown — type what it means in English. In Write Mode, you see the English — type the Valdrok romanization from memory. The script that burns on Alistair's skin, one card at a time.</p>
-                        <p class="how-to">Pick your mode and tier. Type your answer and press Enter. Work through the tiers as the vocabulary deepens.</p>
                     </div>
                 </div>
-                <div class="game-frame-wrap">
-                    <iframe id="frame-flash" src="game_flashcards.html" allowfullscreen></iframe>
+                <div class="game-desc">
+                    <p>Two modes, three tiers. In Read Mode, the abjad script is shown — type what it means in English. In Write Mode, you see the English — type the Valdrok romanization from memory. The script that burns on Alistair's skin, one card at a time.</p>
+                    <p class="how-to">Pick your mode and tier. Type your answer and press Enter. Work through the tiers as vocabulary deepens.</p>
                 </div>
+                <a href="game_flashcards.html" target="_blank" class="play-btn">▶ ENTER</a>
             </div>
 
             <!-- 4: TUTOR -->
-            <div class="game-section">
-                <div class="game-desc">
-                    <div class="game-icon" title="Play">⚒️</div>
-                    <div class="game-text">
+            <div class="game-card">
+                <div class="game-header">
+                    <div class="game-icon">⚒️</div>
+                    <div class="game-titles">
                         <h3>VALDROKTUTOR</h3>
                         <div class="valdrok-name">Blood-Word Learning Magic</div>
-                        <p>Valdrok is a root language — words are built by compounding smaller pieces. The Tutor shows you a meaning and lets you tap roots to construct the correct compound word. Get it right and advance. Get it wrong and see it again. Tier by tier, the language takes hold.</p>
-                        <p class="how-to">Read the target meaning. Tap the roots at the bottom to build the word. Reveal if you're stuck — then mark whether you got it.</p>
                     </div>
                 </div>
-                <div class="game-frame-wrap">
-                    <iframe id="frame-tutor" src="game_tutor.html" allowfullscreen></iframe>
+                <div class="game-desc">
+                    <p>Valdrok is a root language — words are built by compounding smaller pieces. The Tutor shows you a meaning and lets you tap roots to construct the correct compound word. Tier by tier, the language takes hold.</p>
+                    <p class="how-to">Read the target meaning. Tap roots at the bottom to build the word. Reveal if stuck, then mark whether you got it.</p>
                 </div>
+                <a href="game_tutor.html" target="_blank" class="play-btn">▶ ENTER</a>
             </div>
 
             <!-- 5: TYPING INVADERS -->
-            <div class="game-section">
-                <div class="game-desc">
-                    <div class="game-icon" title="Play">👾</div>
-                    <div class="game-text">
+            <div class="game-card">
+                <div class="game-header">
+                    <div class="game-icon">👾</div>
+                    <div class="game-titles">
                         <h3>VAL-DROK VER-ZOK</h3>
-                        <div class="valdrok-name">The Blood-Word holds True-Knowledge</div>
-                        <p>Words descend from the dark. Type them before they reach the bottom — each one destroyed earns points, and combos multiply the score. Eight word lists from common English to horror vocabulary to the Valdrok sacred tongue itself. Nine levels of escalating speed and word length.</p>
-                        <p class="how-to">Select a word list and starting level. Type the falling words exactly and press nothing — a match destroys it on completion. Keep your combo alive.</p>
+                        <div class="valdrok-name">Typing Invaders</div>
                     </div>
                 </div>
-                <div class="game-frame-wrap">
-                    <iframe id="frame-inv" src="game_typing_invaders.html" allowfullscreen></iframe>
+                <div class="game-desc">
+                    <p>Words descend from the dark. Type them before they reach the bottom — each one destroyed earns points, and combos multiply the score. Eight word lists from common English to horror vocabulary to the Valdrok sacred tongue itself. Nine levels of escalating speed.</p>
+                    <p class="how-to">Select a word list and starting level. Type falling words exactly — a match destroys on completion. Keep your combo alive.</p>
                 </div>
+                <a href="game_typing_invaders.html" target="_blank" class="play-btn">▶ ENTER</a>
             </div>
 
-            <!-- 6: PACMAN / GIBLETS -->
-            <div class="game-section">
-                <div class="game-desc">
-                    <div class="game-icon" title="Play">👻</div>
-                    <div class="game-text">
+            <!-- 6: GIBLETS -->
+            <div class="game-card">
+                <div class="game-header">
+                    <div class="game-icon">👻</div>
+                    <div class="game-titles">
                         <h3>VALDROK GIBLETS</h3>
                         <div class="valdrok-name">Spirits of Castle Vale</div>
-                        <p>Pac-Man, reborn in the halls of Castle Vale. Collect every giblet in the maze while the wraiths hunt you — Cassius, Aldric, Theron, Garrick, and more, each with their own color and scatter pattern. Find a salt crystal and the power shifts. Multiple maze layouts, escalating difficulty, and new wraiths added with each level.</p>
-                        <p class="how-to">Arrow keys or WASD to move. Eat all the giblets to clear the level. Collect salt crystals to turn the wraiths blue and eat them back. Mobile: swipe to change direction.</p>
                     </div>
                 </div>
-                <div class="game-frame-wrap">
-                    <iframe id="frame-pac" src="game_pacman.html" allowfullscreen style="height: 680px;"></iframe>
+                <div class="game-desc">
+                    <p>Pac-Man, reborn in the halls of Castle Vale. Collect every giblet in the maze while the wraiths hunt you — Cassius, Aldric, Theron, Garrick, and more, each with their own color and scatter pattern. Find a salt crystal and the power shifts.</p>
+                    <p class="how-to">Arrow keys or WASD to move. Eat all giblets to clear the level. Salt crystals turn the wraiths blue — eat them back. Mobile: swipe to steer.</p>
                 </div>
+                <a href="game_pacman.html" target="_blank" class="play-btn">▶ ENTER</a>
             </div>
 
         </div>
