@@ -109,9 +109,24 @@
         }
 
         /* Hero Section */
+        .spine-header {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto 30px;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        .spine-header img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
+
         .hero {
             text-align: center;
-            padding: 60px 0 80px;
+            padding: 0 0 80px;
             border-bottom: 1px solid #2a2a2a;
         }
 
@@ -419,8 +434,9 @@
 
         <!-- Hero -->
         <section class="hero">
-            <h1>THE FIRST EMPYREAN</h1>
-            <p class="book-number">BOOK ONE</p>
+            <div class="spine-header">
+                <img src="spine.png" alt="The First Empyrean - Book One by Keith Schnakenberg & Claude">
+            </div>
             <p class="tagline">History isn't dead. It's hungry.</p>
 
             <div class="book-cover">
